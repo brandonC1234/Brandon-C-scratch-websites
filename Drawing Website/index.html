@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	    <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="icon" type="image/png" href="icon.png">
+        <meta name="description" content="Example of a JavaScript chat app using PubNub JavaScript V4 SDK.">
+  		<meta name="keywords" content="JavaScript,PubNub,Chat,chat-room,chatting,SDK,PubSub-sdk,tutorial">
+        <meta name="author" content="Chandler Mayo">
+		<title>Brandon's ripoff skribble game</title>
+		<style>
+		    .square {
+                height: 50px;
+                width: 50px;
+            }
+		</style>
+	</head>
+
+	<body>
+		<h4 id="upper">Welcome to Brandon's ripoff skribbl.io</h4>
+		<h4 id="colorText" style="display:none">Current Color</h4>
+		<canvas onmousedown="startDraw()" onmouseup="stopDraw()" onmousemove="draw(event)" id="drawing" width="1500" height="800" style="border: 1px solid black; display:none"></canvas>
+        <div id = "colorStart"></div>
+        <button id="startButton" onclick="startMessage()">Start Game</button>
+        <br>
+        <div id = "nameStart">Players:</div>
+        <br>
+        <input id="input" placeholder="Your Message Here" onkeypress="sendMessage(event)"/>
+        <div id="box"></div>
+        <br>
+        <br>
+        
+        <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.23.0.min.js"></script>
+        
+        <script>
+            
+            var mode = "start"
+            var numPlayer = null
+            var playerCount = null
+            const name = window.prompt("Player name:", "Johnny Appleseed")
+            var names = []
+            var word = null
+            var guessed = false
+            
+            var starting = true
+            var painting = false
+            var step = 10
+            var cur = 0
+            var curstroke = []
+            var strokes = []
+            var color = 0
+            const colors = ["black", "white", "red", "green", "blue", "orange", "yellow", "purple", "pink"]
+            
+            const canvas = document.getElementById("drawing")
+            const ctx = canvas.getContext("2d")
+            
+            var rect = canvas.getBoundingClientRect();
+            var xOff = rect.left;
+            var yOff = rect.top;
+            var lastXY = []
+            
+            function draw(e) {
+                if(mode == "painting" && painting == true){
+                    if (starting == true){
+                        ctx.moveTo(e.clientX - xOff, e.clientY - yOff)
+                        ctx.beginPath();
+                        starting = false
+                        curstroke.push(colors[color])
+                    }
+                    ctx.lineWidth = 10
+                    ctx.lineCap = "round"
+                    ctx.strokeStyle = colors[color];
+                    
+                    var x = Math.floor(e.clientX - xOff);
+                    var y = Math.floor(e.clientY - yOff);
+                    
+                    console.log("why?")
+                    
+                    if(cur % step == 0 || cur == 0){
+                        lastXY = [x,y]
+                        curstroke.push([x,y])
+                    }
+                    
+                    ctx.lineTo(x, y)
+                    ctx.stroke();
+                    
+                    cur += 1
+                }else{
+                    
+                }
+            }
+            
+            function startDraw(){
+                cur = 0
+                starting = true
+                painting = true
+            }
+            
+            function stopDraw(){
+                curstroke.push(lastXY)
+                ctx.closePath();
+                sendStroke(curstroke)
+                strokes.push(curstroke)
+                curstroke = []
+                console.log(strokes)
+                starting = false
+                painting = false
+            }
+            
+            function sendStroke(sequence){
+                sText = sequence.toString()
+                sMessage = "/strke" + sText
+                
+                pubnub.publish({ // Publish new message when enter is pressed. 
+                    channel : channel, message : sMessage, x : (input.value='')
+                })
+            }
+            
+            function emulateCurve(curve){
+                tempColor = curve[0]
+                
+                ctx.lineWidth = 10
+                ctx.lineCap = "round"
+                ctx.strokeStyle = tempColor;
+                
+                firstX = curve[1][0]
+                firstY = curve[1][1]
+                ctx.moveTo(firstX, firstY)
+                ctx.beginPath();
+                for(i = 2; i < curve.length; i++){
+                    coordinates = curve[i]
+                    curX = coordinates[0]
+                    curY = coordinates[1]
+                    
+                    ctx.lineTo(curX, curY)
+                    ctx.stroke();
+                }
+                ctx.closePath();
+            }
+            
+            function startMessage(){
+                
+                if(playerCount != 1){
+                    pubnub.publish({ // Publish new message when enter is pressed. 
+                        channel : channel, message : "/start", x : (input.value='')
+                    })
+                }else{
+                    window.alert("There's only one player")
+                }
+            }
+            function startGame(){
+                document.getElementById("startButton").style.display = "none"
+                
+                colorStart = document.getElementById("colorStart")
+                for (var i = 0; i < colors.length; i++){
+                    var tile = document.createElement("div");
+                    tile.classList.add("square")
+                    if (1==1){
+                        if (i == 0){
+                            tile.onclick = function () {color = 0};;
+                            var tColor = colors[0]
+                        }else if (i == 1){
+                            tile.onclick = function () {color = 1};;
+                            var tColor = colors[1]
+                        }else if (i == 2){
+                            tile.onclick = function () {color = 2};;
+                            var tColor = colors[2]
+                        }else if (i == 3){
+                            tile.onclick = function () {color = 3};;
+                            var tColor = colors[3]
+                        }else if (i == 4){
+                            tile.onclick = function () {color = 4};;
+                            var tColor = colors[4]
+                        }else if (i == 5){
+                            tile.onclick = function () {color = 5};;
+                            var tColor = colors[5]
+                        }else if (i == 6){
+                            tile.onclick = function () {color = 6};;
+                            var tColor = colors[6]
+                        }else if (i == 7){
+                            tile.onclick = function () {color = 7};;
+                            var tColor = colors[7]
+                        }else if (i == 8){
+                            tile.onclick = function () {color = 8};;
+                            var tColor = colors[8]
+                        }else if (i == 9){
+                            tile.onclick = function () {color = 9};;
+                            var tColor = colors[9]
+                        }else if (i == 10){
+                            tile.onclick = function () {color = 10};;
+                            var tColor = colors[10]
+                        }else if (i == 11){
+                            tile.onclick = function () {color = 11};;
+                            var tColor = colors[11]
+                        }else if (i == 12){
+                            tile.onclick = function () {color = 12};;
+                            var tColor = colors[12]
+                        }else if (i == 13){
+                            tile.onclick = function () {color = 13};;
+                            var tColor = colors[13]
+                        }else if (i == 14){
+                            tile.onclick = function () {color = 14};;
+                            var tColor = colors[14]
+                        }else if (i == 15){
+                            tile.onclick = function () {color = 15};;
+                            var tColor = colors[15]
+                        }else if (i == 16){
+                            tile.onclick = function () {color = 16};;
+                            var tColor = colors[16]
+                        }else if (i == 17){
+                            tile.onclick = function () {color = 17};;
+                            var tColor = colors[17]
+                        }else if (i == 18){
+                            tile.onclick = function () {color = 18};;
+                            var tColor = colors[18]
+                        }else if (i == 19){
+                            tile.onclick = function () {color = 19};;
+                            var tColor = colors[19]
+                        }else if (i == 20){
+                            tile.onclick = function () {color = 20};;
+                            var tColor = colors[20]
+                        }else if (i == 21){
+                            tile.onclick = function () {color = 21};;
+                            var tColor = colors[21]
+                        }else if (i == 22){
+                            tile.onclick = function () {color = 22};;
+                            var tColor = colors[22]
+                        }else if (i == 23){
+                            tile.onclick = function () {color = 23};;
+                            var tColor = colors[23]
+                        }else if (i == 24){
+                            tile.onclick = function () {color = 24};;
+                            var tColor = colors[24]
+                        }else if (i == 25){
+                            tile.onclick = function () {color = 25};;
+                            var tColor = colors[25]
+                        }else if (i == 26){
+                            tile.onclick = function () {color = 26};;
+                            var tColor = colors[26]
+                        }else if (i == 27){
+                            tile.onclick = function () {color = 27};;
+                            var tColor = colors[27]
+                        }else if (i == 28){
+                            tile.onclick = function () {color = 28};;
+                            var tColor = colors[28]
+                        }else if(i == 29){
+                            tile.onclick = function () {color = 29};;
+                            var tColor = colors[29]
+                        }else if (i == 30){
+                            tile.onclick = function () {color = 30};;
+                            var tColor = colors[30]
+                        }else{
+                            console.log("section overlimit")
+                        }
+                    }
+                    tile.style.backgroundColor = tColor;
+                    colorStart.appendChild(tile);
+                }
+                
+                if(mode == "painting"){
+                    drawMode()
+                }else{
+                    guessMode()
+                }
+            }
+            
+            function checkPlayerCount(){
+                if(playerCount == null){
+                    numPlayer = 1
+                    playerCount = 1
+                    console.log("I'm player 1")
+                    names.push(name)
+                    displayNames()
+                    
+                    pubnub.publish({ // Publish new message when enter is pressed. 
+                        channel : channel, message : "/plyrs1", x : (input.value='')
+                    })
+                }
+            }
+            
+            function drawMode(){
+                canvas.style.display = "initial"
+                
+                var elements = document.getElementsByClassName("square");
+                for(var i = 0; i < elements.length; i++){
+                    elements[i].style.display = "normal"
+                }
+            }
+            
+            function startTurn(){
+                word = window.prompt("What word would you like?", "cake")
+                wMessage = "/words" + word
+                
+                pubnub.publish({ // Publish new message when enter is pressed. 
+                    channel : channel, message : wMessage, x : (input.value='')
+                })
+            }
+            
+            function guessMode(){
+                canvas.style.display = "initial"
+                
+                var elements = document.getElementsByClassName("square");
+                for(var i = 0; i < elements.length; i++){
+                    elements[i].style.display = "none"
+                }
+            }
+            
+            function sendNameMessage(){
+                nMessage = "/names" + names.toString()
+                
+                pubnub.publish({ // Publish new message when enter is pressed. 
+                    channel : channel, message : nMessage, x : (input.value='')
+                })
+            }
+            
+            function displayNames(){
+                var elements = document.getElementsByClassName("name");
+                while(elements.length > 0){
+                    elements[0].parentNode.removeChild(elements[0]);
+                }
+                
+                nameStart = document.getElementById("nameStart")
+                for (var i = 0; i < names.length; i++){
+                    element = document.createElement("h4")
+                    element.innerHTML = names[i]
+                    element.classList.add("name")
+                    num = i + 1
+                    text = "p" + num.toString()
+                    element.id = text
+                    
+                    nameStart.appendChild(element)
+                }
+            }
+            
+            window.addEventListener('scroll',(event) => {
+                console.log("kill me")
+                var rect = canvas.getBoundingClientRect();
+                xOff = rect.left;
+                yOff = rect.top;
+            });
+            
+            var pubnub = new PubNub({publishKey : 'Personal pubnub IDs',subscribeKey : 'Personal pubnub IDs'}); // Your PubNub keys here. Get them from https://dashboard.pubnub.com.
+            var box = document.getElementById("box"), input = document.getElementById("input"), channel = 'chat';
+            pubnub.subscribe({channels: [channel]}); // Subscribe to a channel.
+            
+            (function(){
+            	
+            	
+            	pubnub.addListener({message: function(m) {
+            	    console.log(m.message)
+            	    var letter = m.message.charAt(0);
+            	    if(letter == "/"){
+            	        checkCommand(m.message);
+            	    }else{
+                   	    box.innerHTML = (''+m.message).replace( /[<>]/g, '' ) + '<br>' + box.innerHTML; // Add message to page.
+            	    }
+                }});
+            })();
+            
+            function sendMessage(e){
+                if(guessed == true && input.value == word){
+                    window.alert("You already guessed the word!")
+                    input.value = ""
+                }else{
+                    var messageText = "/mesge" + numPlayer + name + "|||" + input.value
+                	if (e.keyCode == 13 || e.charCode == 13){ // Publish new message when enter is pressed. 
+                	   pubnub.publish({ // Publish new message when enter is pressed. 
+                            channel : channel, message : messageText, x : (input.value='')
+                        })
+                	};
+                }
+            }
+            
+                function checkCommand(text){
+                    var command = "";
+                    
+                    for(i = 1; i < 6;i++){
+                        var letter = text.charAt(i);
+                        command = command + letter;
+                    }
+                    
+                    if(command == "start"){
+                        if(numPlayer == 1){
+                            mode = "painting"
+                        }else{
+                            mode = "guessing"
+                        }
+                        startGame()
+                        if(numPlayer == 1){
+                            startTurn()
+                        }
+                    }else if(command == "plyr?"){
+                        if(numPlayer == 1){
+                            playerCount += 1
+                            
+                            text = "/plyrs" + playerCount
+                            pubnub.publish({ // Publish new message when enter is pressed. 
+                                channel : channel, message : text, x : (input.value='')
+                            })
+                        }
+                    }else if(command == "plyrs"){
+                        if(numPlayer != 1){
+                            var numText = ""
+                            for (i = 6; i < text.length; i++){
+                                letter = text.charAt(i)
+                                numText = numText + letter
+                            }
+                            console.log(numText)
+                            num = parseFloat(numText)
+                            playerCount = num
+                            console.log("There are " + playerCount + " players.")
+                            
+                            document.getElementById("startButton").style.display = "none"
+                            if(numPlayer == null){
+                                numPlayer = playerCount
+                                console.log("I'm player " + numPlayer)
+                                nameText = "/named" + name
+                                pubnub.publish({ // Publish new message when enter is pressed. 
+                                    channel : channel, message : nameText, x : (input.value='')
+                                })
+                            }
+                        }
+                    }else if(command == "named" && numPlayer == 1){
+                        var newName = ""
+                        for (i = 6; i < text.length; i++){
+                            letter = text.charAt(i)
+                            newName = newName + letter
+                        }
+                        names.push(newName)
+                        sendNameMessage()
+                        displayNames()
+                    }else if(command == "names" && numPlayer != 1){
+                        var nameArr = ""
+                        for (i = 6; i < text.length; i++){
+                            letter = text.charAt(i)
+                            nameArr = nameArr + letter
+                        }
+                        names = nameArr.split(",")
+                        displayNames()
+                    }else if(command == "words" && mode == "guessing"){
+                        word = ""
+                        for(i = 6; i < text.length;i++){
+                            var letter = text.charAt(i);
+                            word = word + letter;
+                        }
+                        //updateWord()
+                    }else if(command == "mesge"){
+                        num = text.charAt(6)
+                        console.log("Player " + num + " just messaged")
+                        mess = ""
+                        for(i = 7; i < text.length;i++){
+                            var letter = text.charAt(i);
+                            mess = mess + letter;
+                        }
+                        pieces = mess.split("|||")
+                        mName = pieces[0]
+                        mText = pieces[1]
+                        console.log(mName, mText)
+                        
+                        if(mText == word){
+                            message = mName + " guessed the word!"
+                            box.innerHTML = message + '<br>' + box.innerHTML; // Add message to page.
+                            
+                            if(num == numPlayer){
+                                guessed = true
+                            }
+                        }else{
+                            message = mName + " : " + mText
+                            box.innerHTML = message + '<br>' + box.innerHTML; // Add message to page.
+                        }
+                    }else if(command == "strke" && mode != "painting"){
+                        string = ""
+                        for(i = 6; i < text.length;i++){
+                            var letter = text.charAt(i);
+                            string = string + letter;
+                        }
+                        var tempCurve = string.split(",")
+                        
+                        var curve = []
+                        curve.push(tempCurve[0])
+                        
+                        var curPair = []
+                        for (i = 1; i < tempCurve.length; i++){
+                            if(i % 2 != 0){
+                                curPair.push(tempCurve[i])
+                            }else{
+                                curPair.push(tempCurve[i])
+                                curve.push(curPair)
+                                curPair = []
+                            }
+                        }
+                        
+                        console.log(curve)
+                        emulateCurve(curve)
+                    }else{
+                        
+                    }
+                  }
+            
+            pubnub.publish({ // Publish new message when enter is pressed. 
+                channel : channel, message : "/plyr?", x : (input.value='')
+            })
+            setTimeout(checkPlayerCount, 3000)
+            
+        </script>
+        
+	</body>
+</html>
