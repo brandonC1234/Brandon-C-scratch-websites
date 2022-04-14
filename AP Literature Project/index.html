@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	    <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="icon" type="image/png" href="icon.png">
+        <meta name="description" content="Example of a JavaScript chat app using PubNub JavaScript V4 SDK.">
+  		<meta name="keywords" content="JavaScript,PubNub,Chat,chat-room,chatting,SDK,PubSub-sdk,tutorial">
+        <meta name="author" content="Chandler Mayo">
+		<title>AP Lit Invisibility Simulator</title>
+		<style>
+		    /* The switch - the box around the slider */
+            .switch {
+              position: relative;
+              display: inline-block;
+              width: 60px;
+              height: 34px;
+            }
+            
+            /* Hide default HTML checkbox */
+            .switch input {
+              opacity: 0;
+              width: 0;
+              height: 0;
+            }
+            
+            /* The slider */
+            .slider {
+              position: absolute;
+              cursor: pointer;
+              top: 0;
+              left: 0;
+              right: 0;
+              bottom: 0;
+              background-color: #ccc;
+              -webkit-transition: .4s;
+              transition: .4s;
+            }
+            
+            .slider:before {
+              position: absolute;
+              content: "";
+              height: 26px;
+              width: 26px;
+              left: 4px;
+              bottom: 4px;
+              background-color: white;
+              -webkit-transition: .4s;
+              transition: .4s;
+            }
+            
+            input:checked + .slider {
+              background-color: #2196F3;
+            }
+            
+            input:focus + .slider {
+              box-shadow: 0 0 1px #2196F3;
+            }
+            
+            input:checked + .slider:before {
+              -webkit-transform: translateX(26px);
+              -ms-transform: translateX(26px);
+              transform: translateX(26px);
+            }
+            
+            /* Rounded sliders */
+            .slider.round {
+              border-radius: 34px;
+            }
+            
+            .slider.round:before {
+              border-radius: 50%;
+            }
+            
+		    html {
+		        margin: 0px;
+		        border: 0px;
+		        
+		        height: 100%;
+		    }
+		    
+		    body {
+		        margin: 0px;
+		        border: 0px;
+		        
+		        height: 100%;
+		    }
+		    header {
+                background-color: white;
+                text-align: center;
+                font-size: 25px;
+                color: black;
+                border-bottom-left-radius: 15px;
+                border-bottom-right-radius: 15px;
+                border-top-left-radius: 15px;
+                border-top-right-radius: 15px;
+            }
+            .legend {
+                float: left;
+                width: 250px;
+                height: 600px;
+            }
+            .legend_box {
+                width: 250px;
+                height: 30px;
+            }
+            .legend_title {
+                font-size: 20px;
+                font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif
+                float:left;
+            }
+            .legend_circle {
+                height: 25px;
+                width: 25px;
+                border-radius: 50%;
+                border: 2px solid black;
+                float: left;
+                display: inline-block;
+            }
+            .legend_spacer {
+                height: 25px;
+                width: 30px;
+                float:left;
+            }
+            .mode_text {
+                height: 34px;
+                font-size: 30px;
+                font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif
+                text-align: left;
+                float:left;
+                padding: 0;
+                margin: 0;
+            }
+            .selection_container {
+                float: left;
+                
+                height: 100%;
+            }
+            .selection_box {
+                border-bottom-left-radius: 5px;
+                border-bottom-right-radius: 5px;
+                border-top-left-radius: 5px;
+                border-top-right-radius: 5px;
+                
+                width: 90%;
+                height: 100%;
+                
+                border: solid;
+                border-color: black;
+                border-width: thin;
+                
+                margin: 0 auto;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                
+                font-size: 1vw;
+                font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+            }
+            .instructions {
+                height: 25px;
+                font-size: 20px;
+                font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif
+                text-align: left;
+                float: left;
+                margin: 0px;
+            }
+            .key {
+                border-bottom-left-radius: 5px;
+                border-bottom-right-radius: 5px;
+                border-top-left-radius: 5px;
+                border-top-right-radius: 5px;
+                
+                width: 90%;
+                height: 90%;
+                
+                display: block;
+                margin: 0 auto;
+                
+                font-size: 1vw;
+                font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+            }
+		</style>
+	</head>
+
+	<body style="height:100%">
+	    <header style="height:5%">
+	        <h2 id="upper" style="font-family:arial; margin:0px; font-size: 2vw" >Welcome to the Ellison invisibility simulator</h2>
+	    </header>
+	    <div style="height:34px; width:100%">
+	        <div style="width:20px; height:30px; float:left"></div>
+    	    <label class="switch" style="float:left">
+              <input type="checkbox" onclick="update_mode()" id="mode_switch">
+              <span class="slider round"></span>
+            </label>
+            <div style="width:20px; height:30px; float:left"></div>
+            <p class="mode_text" id="mode_text">   Premade</p>
+        </div>
+        <div style="height:2%; width:100%"></div>
+        <div style="height:25px; width100%">
+            <div style="height:90%; width:40px; float:left"></div>
+            <p class="instructions" id="instructions"> Click person/topic to run demonstration</p>
+        </div>
+        <div style="height:2%; width:100%"></div>
+	    <div class="selection_div" id="selection_div" style="height:10%; width:80%">
+	    </div>
+        <div style="height:3%; width:100%"></div>
+
+	    <div style="height:600px; width:1500px">
+    	    <canvas onmousedown="startMove(event)" onmouseup="stopMove(event)" onmousemove="move(event)" id="myCanvas" width="1200" height="600" style="border:1px solid #d3d3d3; float:left"></canvas>
+            <div class="legend" id="legend"></div>
+        </div>
+        <br>
+        <div style="height: 4%">
+            <div style="height:100%; width:1%; float:left"></div>
+            <button style= "float:left; height:40px;width:80px" id="stop_button" onclick="stop_sim()">Stop Simulation</button>
+            <div style="height:100%; width:3%; float:left"></div>
+            <button style= "float:left; height:30px;width:60px" class="radius_button" id="increase_button" onclick="increase_radius()">+</button>
+            <div style="height:100%; width:0.5%; float:left"></div>
+            <button style= "float:left; height:30px;width:60px" class="radius_button" id="decrease_button" onclick="decrease_radius()">-</button>
+            <div style="height:100%; width:2%; float:left"></div>
+            <p id = "fps_text" style="float:left; height:100%"></p>
+        </div>
+        <script>
+            var running = false
+            var image_ready = false
+            var image_loaded = false
+            var demo_ind = null
+            
+            var main_timer = null
+            var demo_timer = null
+            var mode = "Premade"
+            var c = document.getElementById("myCanvas");
+            var rect = c.getBoundingClientRect();
+            var xOff = rect.left;
+            var yOff = rect.top;
+            
+            var ctx = c.getContext("2d");
+            ctx.font = "30px Arial";
+            var c_h = 600
+            var c_w = 1200
+            var circle_positions = []
+            var available_rings = []
+            var rings = []
+            var present = []
+            var custom_order = []
+            var selections = ["Sterotypes",     "Racism",                                  "Bledsoe",                                    "Norton",                               "Brotherhood",                  "Clifton",          "Mary",                 "Liberty Paints"]
+            var views_list = [["Invisible"],  ["Worthless", "Secondary", "Invisible"],    ["Subject/source of power", "Worthless"],   ["Feul for Narcissism", "PR resource"], ["Labor source", "PR resource"],    [],             ["Community leader"], ["Labor source", "Secondary"]]
+            var view_options =  ["Invisible",       "Subject/source of power",     "Secondary",        "Feul for Narcissism",      "Labor source",         "PR resource",      "Community leader",       "Worthless"]
+            var colors = [      [254, 255, 255],    [254, 0, 0],        [160, 160, 160],        [51, 153, 255],         [254, 138, 0],          [254, 102, 178],    [0, 255, 0],                        [0, 128, 128]]
+            var selected = null
+            
+            var radius_increment = 10
+            var grabbed = null
+            var positions = []
+            var ring_radius = 100
+            
+            class ring{
+                constructor(r, x, y, name, views){
+                    this.r = r
+                    this.x = x
+                    this.y = y
+                    this.name = name
+                    this.views = views
+                    var c_lst = []
+                    //console.log("views length: ", views.length)
+                    for(var i = 0; i < views.length; i++){
+                        c_lst.push(colors[view_options.indexOf(views[i])])
+                    }
+                    this.Colors = c_lst.slice()
+                    
+                    var text_width = ctx.measureText(name).width;
+                    this.xoff = text_width / 2
+                    this.yoff = 8 / 2
+                }
+                setPosition(x, y){
+                    this.x = x
+                    this.y = y
+                }
+                getX(){
+                    return Math.ceil(this.x)
+                }
+                getY(){
+                    return Math.ceil(this.y)
+                }
+                draw(){
+                    //var c = document.getElementById("myCanvas");
+                    //var ctx = c.getContext("2d");
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
+                    ctx.stroke();
+                    
+                    ctx.fillStyle = "red"
+                    ctx.fillText(this.name, this.x - this.xoff, this.y - this.r - this.yoff);
+                }
+                check_touch(x, y){
+                    if (Math.sqrt((this.x - x)**2 + (this.y - y) ** 2) <= this.r){
+                        return true
+                    }else{
+                        return false
+                    }
+                }
+                getViews(){
+                    return this.views
+                }
+                getColors(){
+                    return this.Colors.slice()
+                }
+                setRad(r_num){
+                    this.r = r_num
+                }
+            }
+            
+            function score_pos(x, y){
+                return y * 1000 + x
+            }
+            
+            function make_available_rings(){
+                var temp_circle_positions = [[0, 0]]
+                for(var i = 0; i < 2 * ring_radius; i++){
+                    for(var x = 0; x < 2 * ring_radius; x++){
+                        temp_circle_positions.push([x - ring_radius, i - ring_radius])
+                    }
+                }
+                
+                circle_positions = []
+                for(var i = 0; i < temp_circle_positions.length; i++){
+                    if(Math.sqrt((temp_circle_positions[i][0] - 0)**2 + (temp_circle_positions[i][1] - 0) ** 2) <= ring_radius){
+                        circle_positions.push(temp_circle_positions[i].slice())
+                    }
+                }
+                
+                //console.log("Circle positions", circle_positions)
+                
+                positions = []
+                
+                for(var i = 0; i < Math.ceil(selections.length / 4); i++){
+                    r_interator = ring_radius + (i * 2 * ring_radius) + 10
+                    positions.push([r_interator, r_interator + 30])
+                    positions.push([c_w - r_interator, r_interator + 30])
+                    positions.push([c_w - r_interator, c_h - r_interator])
+                    positions.push([r_interator, c_h - r_interator])
+                }
+                
+                available_rings = []
+                present = []
+                
+                for(var i = 0; i < selections.length; i++){
+                    x = positions[i][0]
+                    y = positions[i][1]
+                    
+                    var new_ring = new ring(ring_radius, x, y, selections[i], views_list[i])
+                    available_rings.push(new_ring)
+                    
+                    present.push[false]
+                }
+            }
+            
+            function startMove(e){
+                rect = c.getBoundingClientRect();
+                xOff = rect.left;
+                yOff = rect.top;
+                if(mode == "custom"){
+                    var curr_x = e.clientX - xOff
+                    var curr_y = e.clientY - yOff
+                    
+                    var touching = []
+                    for(var i = 0; i < rings.length; i++){
+                        if(rings[i].check_touch(curr_x, curr_y) == true){
+                            touching.push(i)
+                        }
+                    }
+                    
+                    if(touching.length > 1){
+                        console.log("Touching 2 circles at once")
+                    }else if(touching.length == 1){
+                        console.log("Touching circle", touching[0])
+                        grabbed = touching[0]
+                    }
+                }
+            }
+            
+            function stopMove(e){
+                grabbed = null
+            }
+            
+            function move(e){
+                if(mode == "custom"){
+                    if (grabbed != null){
+                        rect = c.getBoundingClientRect();
+                        xOff = rect.left;
+                        yOff = rect.top;
+                        var curr_x = e.clientX - xOff
+                        var curr_y = e.clientY - yOff
+                        if(curr_x < ring_radius){
+                            curr_x = ring_radius
+                        }else if(curr_x > c_w - ring_radius){
+                            curr_x = c_w - ring_radius
+                        }
+                        if(curr_y < ring_radius + 25){
+                            curr_y = ring_radius + 25
+                        }else if(curr_y > c_h - ring_radius){
+                            curr_y = c_h - ring_radius
+                        }
+                        rings[grabbed].setPosition(curr_x, curr_y)
+                    }
+                }
+            }
+            
+            var image_w = 535
+            var image_h = 600
+            var image_x = (c_w - image_w) / 2
+            var image_y = (c_h - image_h) / 2
+            var image = new Image(535, 600);
+            image.src = "https://codehs.com/uploads/3875f1be996af824cce3fa86454b8830"
+            var imgData = null
+            var picture = []
+            image.crossOrigin = "Anonymous";
+            image.onload = function(){
+                image_ready = true
+                load_image();
+            }
+            
+            function load_image(){
+                ctx.drawImage(image, image_x, image_y);
+                imgData = ctx.getImageData(image_x, image_y, image_w, image_h).data;
+                ctx.clearRect(0, 0, c.width, c.height);
+                var counter = 0
+                var default_col = 255
+                for(var i = 0; i < image_h; i++){
+                    var pixels = []
+                    for(var x = 0; x < image_w; x++){
+                        var b_p = imgData.slice(counter * 4, counter * 4 + 4)
+                        new_p = [b_p[0], b_p[1], b_p[2]]
+                        if(x == 0){
+                            new_p = [255, 255, 255]
+                        }
+                        if(new_p[0] == 247 && new_p[1] == 247 && new_p[2] == 247){
+                            new_p = [default_col, default_col, default_col]
+                        }
+                        counter += 1
+                        pixels.push(new_p)
+                    }
+                    picture.push(pixels)
+                }
+                
+                var soonest = 10000000
+                var latest = 0
+                for(var y = 0; y < image_h; y++){
+                    for(var x = 0; x < image_w; x++){
+                        if(picture[y][x][0] != default_col && picture[y][x][1] != default_col && picture[y][x][2] != default_col){
+                            if(x < soonest){
+                                soonest = x
+                            }
+                            if(x > latest){
+                                latest = x
+                            }
+                        }
+                    }
+                }
+                
+                //console.log("soonest:", soonest)
+                //console.log("latest:", latest)
+                
+                var smaller_picture = []
+                for(var y = 0; y < image_h; y++){
+                    var row = []
+                    for(var x = 0; x < image_w; x++){
+                        if(x >= soonest && x <= latest){
+                            row.push(picture[y][x].slice())
+                        }
+                    }
+                    smaller_picture.push(row)
+                }
+                
+                picture = JSON.parse(JSON.stringify(smaller_picture))
+                
+                image_w = latest - soonest
+                image_x = Math.floor((c_w - image_w) / 2)
+                
+                //change whites of eyes
+                var eye_coordinates = [[44,176],[97,152]]
+                var eye_reach = 10
+                for(var z = 0; z < eye_coordinates.length; z++){
+                    for(var y = 0; y < image_h; y++){
+                        for(var x = 0; x < image_w; x++){
+                            if(Math.sqrt((eye_coordinates[z][0] - x)**2 + (eye_coordinates[z][1] - y) ** 2) <= eye_reach){
+                                if(picture[y][x][0] == default_col){
+                                    picture[y][x][0] = default_col - 1
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                console.log("converted to smaller picture, width:", image_w)
+                console.log("picture loaded")
+                image_loaded = true
+                //console.log(imgData)
+                //console.log(picture)
+            }
+            
+            function print_image(){
+                //d_start = new Date()
+                //print img
+                var img = []
+                for(var y = 0; y < image_h; y++){
+                    var row_arr = []
+                    for(var x = 0; x < image_w; x++){
+                        row_arr.push([picture[y][x][0], picture[y][x][1], picture[y][x][2]])
+                    }
+                    img.push(row_arr)
+                }
+                //console.log("img:", img)
+                //d_finish = new Date()
+                //i_start = new Date()
+                var lower_x = image_x - ring_radius
+                var upper_x = image_x + image_w + ring_radius
+                for(var r = 0; r < rings.length; r++){
+                    var r_x = rings[r].getX()
+                    var colors = rings[r].getColors()
+                    if(r_x >= lower_x && r_x <= upper_x && colors.length != 0){
+                        var rel_x = r_x - image_x
+                        var t_pos = []
+                        var r_y = rings[r].getY()
+                        var rel_y = r_y - image_y
+                        var amount = 0
+                        i2_start = new Date()
+                        for(var i = 0; i < circle_positions.length; i++){
+                            var temp_x = rel_x + circle_positions[i][0]
+                            var temp_y = rel_y + circle_positions[i][1]
+                            if(temp_y >= 0 && temp_y < image_h && temp_x >= 0 && temp_x < image_w){
+                                if(img[temp_y][temp_x][0] != 255 /*&& img[y][x][1] != 252 && img[y][x][2] != 252*/){
+                                    amount += 1;
+                                    t_pos.push([temp_x, temp_y])
+                                }
+                            }
+                        }
+                        i2_finish = new Date()
+                        i3_start = new Date()
+                        if(amount != 0){
+                            var change_at = Math.floor(amount / colors.length)
+                            for(var o = 0; o < colors.length; o++){
+                                var add = o * change_at
+                                var color = colors[o].slice()
+                                for(var i = add; i < add + change_at; i++){
+                                    if(img[t_pos[i][1]][t_pos[i][0]][0] != 252){
+                                        img[t_pos[i][1]][t_pos[i][0]] = color
+                                    }
+                                }
+                            }
+                        }
+                        i3_finish = new Date()
+                    }
+                }
+                //i_finish = new Date()
+                //f_start = new Date()
+                
+                var temp_clamp = new Uint8ClampedArray(image_w * image_h * 4)
+                for(var y = 0; y < image_h; y++){
+                    for(var x = 0; x < image_w; x++){
+                        var pixel = img[y][x]
+                        var start = y * image_w * 4 +  x * 4
+                        temp_clamp[start] = (pixel[0])
+                        temp_clamp[start + 1] = (pixel[1])
+                        temp_clamp[start + 2] = (pixel[2])
+                        temp_clamp[start + 3] = (255)
+                    }
+                }
+                //f_finish = new Date()
+                //console.log("formatted array: ", formatted_array)
+                //p_start = new Date()
+                data = new ImageData(temp_clamp, image_w, image_h)
+                ctx.putImageData(data, image_x, image_y);
+                //p_finish = new Date()
+                
+                //console.log("dplt time:", d_finish.getTime() - d_start.getTime())
+                //console.log("edit time:", i_finish.getTime() - i_start.getTime())
+                //console.log("edt2 time:", i2_finish.getTime() - i2_start.getTime())
+                //console.log("edt3 time:", i3_finish.getTime() - i3_start.getTime())
+                //console.log("covt time:", f_finish.getTime() - f_start.getTime())
+                //console.log("prnt time:", p_finish.getTime() - p_start.getTime())
+            }
+            
+            function main(){
+                start = new Date()
+                ctx.clearRect(0, 0, c.width, c.height);
+                
+                //var colors = rings[0].getColors()
+                //console.log("colors:", colors)
+                
+                //do image
+                print_image()
+                
+                //draw rings
+                for(var i = 0; i < rings.length; i++){
+                    rings[i].draw()
+                    //console.log(rings[i].getX() - image_x, rings[i].getY() - image_y)
+                }
+                
+                finish = new Date()
+                var fps = 1 / ((finish.getTime() - start.getTime()) / 1000)
+                var fps_string = "fps: " + Math.round(fps * 100) / 100
+                document.getElementById("fps_text").innerHTML = fps_string
+            }
+            
+            function stop_sim(){
+                document.getElementById("fps_text").innerHTML = ""
+                stopMain()
+                stopDemo()
+                ctx.clearRect(0, 0, c.width, c.height);
+                running = false
+            }
+            function stopMain(){
+                clearInterval(main_timer)
+                console.log("stopped main")
+            }
+            
+            function stopDemo(){
+                clearInterval(demo_timer)
+                console.log("stopped demo")
+            }
+            
+            function make_legend(){
+                var start = document.getElementById("legend")
+                for(var i = 0; i < view_options.length; i++){
+                    var view = view_options[i]
+                    var color = colors[i]
+                    
+                    var spacer1 = document.createElement("div")
+                    spacer1.classList.add("legend_spacer")
+                    
+                    var box = document.createElement("div")
+                    box.classList.add("legend_box")
+                    
+                    var spacer2 = document.createElement("div")
+                    spacer2.classList.add("legend_spacer")
+                    
+                    var title = document.createElement("h6")
+                    title.classList.add("legend_title")
+                    title.innerHTML = view
+                    
+                    var circle = document.createElement("span")
+                    circle.classList.add("legend_circle")
+                    var rgb_string = "rgb(" + color[0] + ", " + color[1] + ", " + color[2] + ")"
+                    circle.style.backgroundColor = rgb_string
+                    
+                    box.appendChild(spacer1)
+                    box.appendChild(circle)
+                    box.appendChild(spacer2)
+                    box.appendChild(title)
+                    
+                    start.appendChild(box)
+                }
+            }
+            
+            function make_selections(){
+                var start = document.getElementById("selection_div")
+                var width = 100 / (selections.length + 1)
+                
+                var container = document.createElement("div")
+                container.classList.add("selection_container")
+                container.style.width = width + "%";
+
+                var box = document.createElement("div")
+                box.classList.add("selection_box")
+                box.innerHTML = "Options:"
+                box.style.border = "none"
+                
+                container.appendChild(box)
+                start.appendChild(container)
+                
+                for(var i = 0; i < selections.length; i++){
+                    var name = selections[i]
+                    var container = document.createElement("div")
+                    container.classList.add("selection_container")
+                    container.style.width = width + "%";
+                    
+                    var box = document.createElement("div")
+                    box.classList.add("selection_box")
+                    box.innerHTML = name
+                    if (1==1){
+                            if (i == 0){
+                                box.onclick = function () { selected = 0; select(i)};;
+                            }else if (i == 1){
+                                box.onclick = function () { selected = 1; select(i)};;
+                            }else if (i == 2){
+                                box.onclick = function () { selected = 2; select(i)};;
+                            }else if (i == 3){
+                                box.onclick = function () { selected = 3; select(i)};;
+                            }else if (i == 4){
+                                box.onclick = function () { selected = 4; select(i)};;
+                            }else if (i == 5){
+                                box.onclick = function () { selected = 5; select(i)};;
+                            }else if (i == 6){
+                                box.onclick = function () { selected = 6; select(i)};;
+                            }else if (i == 7){
+                                box.onclick = function () { selected = 7; select(i)};;
+                            }else if (i == 8){
+                                box.onclick = function () { selected = 8; select(i)};;
+                            }else if (i == 9){
+                                box.onclick = function () { selected = 9; select(i)};;
+                            }else if (i == 10){
+                                box.onclick = function () { selected = 10; select(i)};;
+                            }else if (i == 11){
+                                box.onclick = function () { selected = 11; select(i)};;
+                            }else if (i == 12){
+                                box.onclick = function () { selected = 12; select(i)};;
+                            }else if (i == 13){
+                                box.onclick = function () { selected = 13; select(i)};;
+                            }else if (i == 14){
+                                box.onclick = function () { selected = 14; select(i)};;
+                            }else if (i == 15){
+                                box.onclick = function () { selected = 15; select(i)};;
+                            }else if (i == 16){
+                                box.onclick = function () { selected = 16; select(i)};;
+                            }else if (i == 17){
+                                box.onclick = function () { selected = 17; select(i)};;
+                            }else if (i == 18){
+                                box.onclick = function () { selected = 18; select(i)};;
+                            }else if (i == 19){
+                                box.onclick = function () { selected = 19; select(i)};;
+                            }else if (i == 20){
+                                box.onclick = function () { selected = 20; select(i)};;
+                            }else if (i == 21){
+                                box.onclick = function () { selected = 21; select(i)};;
+                            }else if (i == 22){
+                                box.onclick = function () { selected = 22; select(i)};;
+                            }else if (i == 23){
+                                box.onclick = function () { selected = 23; select(i)};;
+                            }else if (i == 24){
+                                box.onclick = function () { selected = 24; select(i)};;
+                            }else if (i == 25){
+                                box.onclick = function () { selected = 25; select(i)};;
+                            }else if (i == 26){
+                                box.onclick = function () { selected = 26; select(i)};;
+                            }else if (i == 27){
+                                box.onclick = function () { selected = 27; select(i)};;
+                            }else if (i == 28){
+                                box.onclick = function () { selected = 28; select(i)};;
+                            }else if(i == 29){
+                                box.onclick = function () { selected = 29; select(i)};;
+                            }else if (i == 30){
+                                box.onclick = function () { selected = 30; select(i)};;
+                            }else{
+                                console.log("selections overlimit")
+                            }
+                        }
+                    
+                    container.appendChild(box)
+                    start.appendChild(container)
+                }
+            }
+            
+            function move_demo(){
+                var x = rings[0].getX()
+                var y = rings[0].getY()
+                var movement = 20
+                
+                if(moving == "left"){
+                    if(x < ring_radius + 30){
+                        moving = "right"
+                    }else{
+                        rings[0].setPosition(x - movement, y)
+                    }
+                }else{
+                    if(x > c_w - ring_radius - 30){
+                        moving = "left"
+                    }else{
+                        rings[0].setPosition(x + movement, y)
+                    }
+                }
+                
+            }
+            
+            function start_demo(index){
+                ring_radius = (c_h / 2) - 80
+                make_available_rings()
+                rings = []
+                rings.push(available_rings[index])
+                rings[0].setPosition(ring_radius + 20, Math.ceil(c_h/2))
+                moving = "right"
+                
+                main_timer = setInterval(main, 1000/30)
+                demo_timer = setInterval(move_demo, 1000/30)
+            }
+            
+            function switch_demo(index){
+                var x = rings[0].getX()
+                var y = rings[0].getY()
+                
+                rings = []
+                rings.push(available_rings[index])
+                rings[0].setPosition(x, y)
+            }
+            
+            function reset_custom_bools(){
+                for(var i = 0; i < present.length; i++){
+                    present[i] = false
+                }
+            }
+            
+            function start_custom(index){
+                custom_order = []
+                custom_order.push(index)
+                ring_radius = 120
+                make_available_rings()
+                rings = []
+                rings.push(available_rings[index])
+                present[index] = true
+                
+                main_timer = setInterval(main, 1000/30)
+            }
+            
+            function remove_custom(index){
+                var ring_index = custom_order.indexOf(selected)
+                rings.splice(ring_index, 1)
+                custom_order.splice(ring_index, 1)
+                present[index] = false
+            }
+            
+            function increase_radius(){
+                if(running = true){
+                    if(mode == "custom"){
+                        var ring_pos = []
+                        for(var i = 0; i < rings.length; i++){
+                            ring_pos.push([rings[i].getX(), rings[i].getY()])
+                        }
+                        ring_radius += radius_increment
+                        make_available_rings()
+                        rings = []
+                        
+                        for(var i = 0; i < custom_order.length; i++){
+                            rings.push(available_rings[custom_order[i]])
+                            rings[i].setPosition(ring_pos[i][0], ring_pos[i][1])
+                            present[custom_order[i]] = true
+                        }
+                    }else if(mode == "premade"){
+                        var x = rings[0].getX()
+                        var y = rings[0].getY()
+                        
+                        ring_radius += radius_increment
+                        make_available_rings()
+                        
+                        rings = []
+                        rings.push(available_rings[demo_ind])
+                        rings[0].setPosition(x, y)
+                    }else{
+                        console.log("invalid mode")
+                    }
+                }
+            }
+            
+            function decrease_radius(){
+                if(running = true && ring_radius >= radius_increment + 1){
+                    if(mode == "custom"){
+                        var ring_pos = []
+                        for(var i = 0; i < rings.length; i++){
+                            ring_pos.push([rings[i].getX(), rings[i].getY()])
+                        }
+                        ring_radius -= radius_increment
+                        make_available_rings()
+                        rings = []
+                        
+                        for(var i = 0; i < custom_order.length; i++){
+                            rings.push(available_rings[custom_order[i]])
+                            rings[i].setPosition(ring_pos[i][0], ring_pos[i][1])
+                            present[custom_order[i]] = true
+                        }
+                    }else if(mode == "premade"){
+                        var x = rings[0].getX()
+                        var y = rings[0].getY()
+                        
+                        ring_radius -= radius_increment
+                        make_available_rings()
+                        
+                        rings = []
+                        rings.push(available_rings[demo_ind])
+                        rings[0].setPosition(x, y)
+                    }else{
+                        console.log("invalid mode")
+                    }
+                }
+            }
+            
+            function update_mode(){
+                var custom = document.getElementById("mode_switch").checked
+                if(custom == true){
+                    mode = "custom"
+                    document.getElementById("mode_text").innerHTML = "   Custom"
+                    document.getElementById("instructions").innerHTML = "  Click person/topics to toggle their POV"
+                    document.getElementById("fps_text").innerHTML = ""
+                    stop_sim()
+                    running = false
+                    demo_ind = null
+                }else{
+                    mode = "premade"
+                    document.getElementById("mode_text").innerHTML = "   Premade"
+                    document.getElementById("instructions").innerHTML = "  Click person/topic to run demonstration"
+                    document.getElementById("fps_text").innerHTML = ""
+                    stop_sim()
+                    running = false
+                    demo_ind = null
+                }
+            }
+            
+            function select(){
+                if (selected != null){
+                    if(image_ready == false){
+                        window.alert("image still loading, wait a couple seconds")
+                    }else{
+                        if(mode == "premade"){
+                            if(running == true){
+                                switch_demo(selected)
+                            }else{
+                                start_demo(selected)
+                            }
+                            demo_ind = selected
+                            running = true
+                        }else if (mode == "custom"){
+                            if(running == true){
+                                if(present[selected] == true){
+                                    remove_custom(selected)
+                                }else{
+                                    rings.push(available_rings[selected])
+                                    custom_order.push(selected)
+                                    present[selected] = true
+                                }
+                            }else{
+                                start_custom(selected)
+                            }
+                            running = true;
+                        }else{
+                            console.log("invalid mode")
+                        }
+                    }
+                }else{
+                    console.log("nothing has been selected")
+                }
+                selected = null;
+            }
+            
+            make_available_rings()
+            make_legend()
+            make_selections()
+            update_mode()
+        </script>
+	</body>
+</html>
