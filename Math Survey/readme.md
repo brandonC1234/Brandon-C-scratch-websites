@@ -18,6 +18,6 @@ This is an application I made during online school to make it easier for student
 
 
 ## Recreation Instructions
-1. Should transfer easily
+1. Replace Pubnub IDs with your own
 ## Special aspects
 1. IDK
