@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	    <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="icon" type="image/png" href="icon.png">
+        <meta name="description" content="Example of a JavaScript chat app using PubNub JavaScript V4 SDK.">
+  		<meta name="keywords" content="JavaScript,PubNub,Chat,chat-room,chatting,SDK,PubSub-sdk,tutorial">
+        <meta name="author" content="Chandler Mayo">
+		<title>Ripoff wordle game</title>
+		<style>
+		    
+		    html {
+		        margin: 0px;
+		        border: 0px;
+		        
+		        height: 100%;
+		    }
+		    
+		    body {
+		        margin: 0px;
+		        border: 0px;
+		        
+		        height: 100%;
+		    }
+		    /* Style the header */
+            header {
+              background-color: white;
+              text-align: center;
+              font-size: 25px;
+              color: black;
+              border-bottom-left-radius: 15px;
+              border-bottom-right-radius: 15px;
+              border-top-left-radius: 15px;
+              border-top-right-radius: 15px;
+            }
+            
+            /* style game sections */
+            .left {
+                background-color: lightblue;
+                float: left;
+                width: 20%;
+                height: 100%;
+            }
+            
+            .center {
+                background-color: white;
+                float: left;
+                width: 60%;
+                height: 100%;
+            }
+            
+            .right {
+                background-color: lightblue;
+                float: left;
+                width: 20%;
+                height: 100%;
+            }
+            
+            .tile {
+                margin-bottom: 1%;
+                margin-top: 1%;
+                margin-left: 1%;
+                margin-right: 1%;
+                border-bottom-left-radius: 15px;
+                border-bottom-right-radius: 15px;
+                border-top-left-radius: 15px;
+                border-top-right-radius: 15px;
+                
+                
+                border: solid;
+                border-color: lightgrey;
+                border-width: thin;
+                
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                
+                font-size: 5vw;
+                font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+            }
+            
+            .row{
+                height: 33.33333%;
+                width: 100%;
+            }
+            
+            .key {
+                border-bottom-left-radius: 5px;
+                border-bottom-right-radius: 5px;
+                border-top-left-radius: 5px;
+                border-top-right-radius: 5px;
+                
+                width: 90%;
+                height: 90%;
+                
+                display: block;
+                margin: 0 auto;
+                
+                font-size: 1vw;
+                font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+            }
+            
+            .half_spacer {
+                float: left;
+                
+                height: 100%;
+                width: 5%;
+            }
+            .half_key {
+                float:left;
+                
+                margin: auto;
+                width: 12%;
+                height: 80%
+            }
+            .key_container {
+                float: left;
+                
+                height: 100%;
+                width: 10%;
+            }
+            .half_key_container {
+                float: left;
+                
+                height: 100%;
+                width: 15%;
+            }
+            .chat_header {
+                display:block;
+                margin:auto;
+                
+                width: 100%;
+                height: 10%;
+                
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                
+                font-size: 3vw;
+                font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+            }
+            .chat_container {
+                border-bottom-left-radius: 20px;
+                border-bottom-right-radius: 20px;
+                border-top-left-radius: 20px;
+                border-top-right-radius: 20px;
+                
+                background-color: white;
+                
+                display:block;
+                margin:auto;
+                width: 80%;
+                height: 60%;
+            }
+            .players_scroll_container {
+                overflow-y: auto;
+                
+                display:block;
+                margin:auto;
+                
+                height: 100%;
+                width: 95%;
+                background-color: blue;
+            }
+            .player_spacer {
+                width: 100%;
+                height: 2%;
+            }
+            .player_box {
+                display:block;
+                width: 100%;
+                height: 10%;
+                
+                background-color: white;
+                align-items: center;
+            }
+            .player_position {
+                float: left;
+                
+                width: 20%;
+                height: 100%;
+                
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                
+                font-size: 2vw;
+                font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+            }
+            .name_text {
+                width: 80%;
+                height: 60%;
+                
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                
+                font-size: 1vw;
+                font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+            }
+            .score_text {
+                width: 80%;
+                height: 30%;
+                
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                
+                font-size: 0.7vw;
+                font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+            }
+		</style>
+	</head>
+
+	<body style="height:100%">
+	    <header style="height:5%">
+	        <h2 id="upper" style="font-family:arial; margin:0px; font-size: 2vw" >Welcome to the multiplayer wordle game.</h2>
+	    </header>
+	    
+	    <div class = "game" style="height:95%">
+	        <div class = "left">
+	            <div class="player_spacer"></div>
+	            <div id="players" style="width:100%; height:70%">
+	                <div class="players_scroll_container" id="players_scroll_container">
+	                    
+	                </div>
+	            </div>
+	            <button id="startButton" onclick="start()" style="margin:2%">start</button>
+	        </div>
+	        <div class = "center" id="center" style="height:100%">
+	            <div id="tiles" style="height:80%; width:100%">
+	            </div>
+	            <div id="keyboard" style="height:20%; width:100%">
+	                <div class="row">
+	                    <div class="key_container">
+	                        <button onclick="keyBoardEntry(this)" id="q" data-key="Q" class="key">Q</button>
+	                    </div>
+	                    <div class="key_container">
+	                        <button onclick="keyBoardEntry(this)" id="w" data-key="W" class="key">W</button>
+	                    </div>
+	                    <div class="key_container">
+	                        <button onclick="keyBoardEntry(this)" id="e" data-key="E" class="key">E</button>
+	                    </div>
+	                    <div class="key_container">
+	                        <button onclick="keyBoardEntry(this)" id="r" data-key="R" class="key">R</button>
+	                    </div>
+	                    <div class="key_container">
+	                        <button onclick="keyBoardEntry(this)" id="t" data-key="T" class="key">T</button>
+	                    </div>
+	                    <div class="key_container">
+	                        <button onclick="keyBoardEntry(this)" id="y" data-key="Y" class="key">Y</button>
+	                    </div>
+	                    <div class="key_container">
+	                        <button onclick="keyBoardEntry(this)" id="u" data-key="U" class="key">U</button>
+	                    </div>
+	                    <div class="key_container">
+	                        <button onclick="keyBoardEntry(this)" id="i" data-key="I" class="key">I</button>
+	                    </div>
+	                    <div class="key_container">
+	                        <button onclick="keyBoardEntry(this)" id="o" data-key="O" class="key">O</button>
+	                    </div>
+	                    <div class="key_container">
+	                        <button onclick="keyBoardEntry(this)" id="p" data-key="P" class="key">P</button>
+	                    </div>
+	                </div>
+	                <div class="row">
+	                    <div class="half_spacer"></div>
+	                    <div class="key_container">
+	                        <button onclick="keyBoardEntry(this)" id="a" data-key="A" class="key">A</button>
+	                    </div>
+	                    <div class="key_container">
+	                        <button onclick="keyBoardEntry(this)" id="s" data-key="S" class="key">S</button>
+	                    </div>
+	                    <div class="key_container">
+	                        <button onclick="keyBoardEntry(this)" id="d" data-key="D" class="key">D</button>
+	                    </div>
+	                    <div class="key_container">
+	                        <button onclick="keyBoardEntry(this)" id="f" data-key="F" class="key">F</button>
+	                    </div>
+	                    <div class="key_container">
+	                        <button onclick="keyBoardEntry(this)" id="g" data-key="G" class="key">G</button>
+	                    </div>
+	                    <div class="key_container">
+	                        <button onclick="keyBoardEntry(this)" id="h" data-key="H" class="key">H</button>
+	                    </div>
+	                    <div class="key_container">
+	                        <button onclick="keyBoardEntry(this)" id="j" data-key="J" class="key">J</button>
+	                    </div>
+	                    <div class="key_container">
+	                        <button onclick="keyBoardEntry(this)" id="k" data-key="K" class="key">K</button>
+	                    </div>
+	                    <div class="key_container">
+	                        <button onclick="keyBoardEntry(this)" id="l" data-key="L" class="key">L</button>
+	                    </div>
+	                    <div class="half_spacer"></div>
+	                </div>
+	                <div class="row">
+	                    <div class="half_key_container">
+	                        <button onclick="keyBoardEntry(this)" data-key="enter" class="key">Enter</button>
+	                    </div>
+	                    <div class="key_container">
+	                        <button onclick="keyBoardEntry(this)" id="z" data-key="Z" class="key">Z</button>
+	                    </div>
+	                    <div class="key_container">
+	                        <button onclick="keyBoardEntry(this)" id="x" data-key="X" class="key">X</button>
+	                    </div>
+	                    <div class="key_container">
+	                        <button onclick="keyBoardEntry(this)" id="c" data-key="C" class="key">C</button>
+	                    </div>
+	                    <div class="key_container">
+	                        <button onclick="keyBoardEntry(this)" id="v" data-key="V" class="key">V</button>
+	                    </div>
+	                    <div class="key_container">
+	                        <button onclick="keyBoardEntry(this)" id="b" data-key="B" class="key">B</button>
+	                    </div>
+	                    <div class="key_container">
+	                        <button onclick="keyBoardEntry(this)" id="n" data-key="N" class="key">N</button>
+	                    </div>
+	                    <div class="key_container">
+	                        <button onclick="keyBoardEntry(this)" id="m" data-key="M" class="key">M</button>
+	                    </div>
+	                    <div class="half_key_container">
+	                        <button onclick="keyBoardEntry(this)" data-key="delete" class="key">delete</button>
+	                    </div>
+	                </div>
+	            </div>
+	        </div>
+	        <div class = "right" style="height:100%">
+	            <div class="chat_header">Chat: </div>
+	            <div class="chat_container">
+	                
+	            </div>
+	        </div>
+	    </div>
+	    <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.23.0.min.js"></script>
+	    <script src="words.js"></script>
+        <script>
+            const name = window.prompt("Player name:", "Johnny Appleseed")
+            var win_time = new Date()
+            var names = []
+            var player_number = null
+            var num_players = null
+            
+            var typing_mode = "game"
+            var tries = 6
+            var wordLength = 6
+            var length_mode = "random"
+            
+            var tryCount = 0
+            var playing = false
+            var font_size = "30px"
+            
+            var word = "abc"
+            var guess = ""
+            
+            var min_length = 5
+            var max_length = 9
+            
+    		function start(){
+    		    console.log("Start command!")
+    		    if(playing == false){
+    		        var current = new Date()
+    		        if(current.getTime() - win_time.getTime() >= 1000){
+    		            guess = ""
+    		        
+        		        if(length_mode == "random"){
+            		        wordLength = min_length + Math.floor(Math.random() * (max_length - min_length))
+            		    }
+            		    
+        		        //updateValues()
+        		        
+        		        createBoard(wordLength, tries)
+        		        
+        		        clearKeyboard()
+        
+            		    tryCount = 0
+            		    playing = true
+            		    
+            		    var temp_words = words[wordLength - 1]
+            		    var index = Math.floor(Math.random() * temp_words.length)
+            		    
+            		    word = temp_words[index]
+            		    console.log("The word is:", word)
+    		        }
+    		    }else{
+    		        //playing = false
+    		    }
+    		}
+    		
+    		function wordle_type(character){
+    		    if(playing == true){
+    		        if(guess.length < wordLength){
+    		            var newLetter = String.fromCharCode(character)
+    		            guess += newLetter
+    		            
+    		            var id_string = tryCount.toString() + (guess.length - 1).toString()
+    		            var tile = document.getElementById(id_string)
+    		            
+    		            tile.innerHTML = newLetter
+    		        }
+    		    }
+    		}
+    		
+    		function backspace(){
+    		    if(playing == true){
+    		        if(guess.length > 0){
+    		            var id_string = tryCount.toString() + (guess.length - 1).toString()
+    		            var tile = document.getElementById(id_string)
+    		            
+    		            tile.innerHTML = ""
+    		            
+    		            guess = guess.slice(0, -1)
+    		        }
+    		    }
+    		}
+    		
+    		function check(){
+    		    if(playing == true){
+    		        if(guess == "" || guess.length != wordLength){
+    		            console.log("Invalid input")
+    		            //add invalid input reply
+    		        }else{
+    		            var correct = 0
+    		            
+    		            for(var i = 0; i < guess.length; i++){
+    		                var guessChar = guess[i].toLowerCase()
+    		                var wordChar = word[i]
+    		                
+    		                var id_string = tryCount.toString() + i.toString()
+    		                var tile = document.getElementById(id_string)
+    		                var key = document.getElementById(guessChar)
+    		                
+    		                var color = ""
+    		                if(guessChar == wordChar){
+    		                    color = "green"
+    		                    correct += 1
+    		                }else{
+    		                    var present = word.indexOf(guessChar)
+    		                    
+    		                    if(present != -1){
+    		                        color = "yellow"
+    		                    }else{
+    		                        color = "grey"
+    		                    }
+    		                }
+    		                tile.style.backgroundColor = color
+    		                tile.style.color = "white"
+    		                
+    		                key.style.backgroundColor = color
+    		                key.style.color = "white"
+    		            }
+    		            tryCount += 1
+    		            
+    		            if(correct == wordLength){
+        		            window.alert("You won!", correct)
+        		            playing = false
+        		            
+        		        }else if(tryCount >= tries){
+        		            window.alert("out of tries!")
+        		            playing = false
+        		        }
+        		        
+        		        win_time = new Date()
+        		        guess = ""
+    		        }
+    		    }else{
+    		        window.alert("you must click start first")
+    		    }
+    		}
+    		
+    		function clearBoard(){
+    		    //clear board
+    		    var elements = document.getElementsByClassName("tile_row");
+                while(elements.length > 0){
+                    elements[0].parentNode.removeChild(elements[0]);
+                }
+    		}
+    		
+    		function createBoard(wordLength, tries){
+    		    clearBoard()
+    		    
+    		    //create board
+    		    var height = (100 / tries).toString() + "%"
+    		    var width = (100 / wordLength).toString() + "%"
+
+    		    var start = document.getElementById("tiles")
+    		    
+    		    for(var i = 0; i < tries; i++){
+    		        var row = document.createElement("div")
+    		        row.classList.add("tile_row")
+    		        row.style.height = height
+    		        for(var x = 0; x < wordLength; x++){
+    		            var container = document.createElement("div")
+    		            container.classList.add("tile_container")
+    		            
+    		            container.style.width = (100 / wordLength).toString() + "%"
+    		            container.style.height = "100%"
+    		            container.style.float = "left"
+    		            
+    		            var tile = document.createElement("div")
+    		            tile.classList.add("tile")
+    		            
+    		            tile.style.width = "90%"
+    		            tile.style.height= "90%"
+    		            tile.style.margin = "auto"
+    		            
+    		            tile.style.backgroundColor = "white"
+    		            
+    		            tile.style.textAlign = "center"
+    		            //tile.innerHTML = "hi" + (x + 1 + (i * wordLength)).toString()
+    		            tile.id = i.toString() + x.toString()
+    		            
+    		            container.appendChild(tile)
+    		            row.appendChild(container)
+    		        }
+    		        start.appendChild(row)
+    		    }
+    		}
+    		
+            
+            document.onkeydown = function(e){
+                e = e || window.event;
+                var key = e.which || e.keyCode;
+                
+                if(typing_mode == "game"){
+                    console.log(key)
+                    if(key >= 65 && key <= 90){
+                        wordle_type(key)
+                    }
+                    if(key == 13){
+                        //enter key is pressed
+                        check()
+                    }
+                    if(key == 8){
+                        //backspace is pressed
+                        backspace()
+                    }
+                }
+            }
+            
+            function keyBoardEntry(key){
+                var character = key.getAttribute("data-key")
+                
+                if(playing == true){
+                    if(character == "enter"){
+                        check()
+                    }else if(character == "delete"){
+                        backspace()
+                    }else{
+        		        if(guess.length < wordLength){
+        		            var newLetter = character
+        		            guess += newLetter
+        		            
+        		            var id_string = tryCount.toString() + (guess.length - 1).toString()
+        		            var tile = document.getElementById(id_string)
+        		            
+        		            tile.innerHTML = newLetter
+        		        }
+                    }
+    		    }
+            }
+            
+            function clearKeyboard(){
+                var elements = document.getElementsByClassName("key");
+                for(var i = 0; i < elements.length; i++){
+                    elements[i].style.backgroundColor = "initial"
+                    elements[i].style.color = "black"
+                }
+            }
+            
+            var pubnub = new PubNub({publishKey : 'Personal pubnub IDs',subscribeKey : 'Personal pubnub IDs'}); // Your PubNub keys here. Get them from https://dashboard.pubnub.com.
+            var channel = 'chat'
+            pubnub.subscribe({channels: [channel]}); // Subscribe to a channel.
+            
+            (function(){
+            	
+            	
+            	pubnub.addListener({message: function(m) {
+            	    console.log(m.message)
+            	    var letter = m.message.charAt(0);
+            	    if(letter == "/"){
+            	        checkCommand(m.message);
+            	    }else{
+                   	    // Add message to page.
+            	    }
+                }});
+            })();
+            
+            function checkCommand(text){
+                var command = "";
+                    
+                for(i = 1; i < 6;i++){
+                    var letter = text.charAt(i);
+                    command += letter;
+                }
+                
+                console.log(command)
+                
+                if(command == "plyr?"){
+                    if(player_number == 1){
+                        num_players += 1
+                        text = "/plyrs" + num_players
+                        pubnub.publish({ 
+                            channel : channel, message : text
+                        })
+                    }
+                }else if(command == "plyrs"){
+                    if(player_number != 1){
+                        var numText = ""
+                        for (i = 6; i < text.length; i++){
+                            letter = text.charAt(i)
+                            numText = numText + letter
+                        }
+                        console.log(numText)
+                        num = parseFloat(numText)
+                        num_players = num
+                        console.log("There are " + num_players + " players.")
+                        
+                        if(player_number == null){
+                            player_number = num_players
+                            console.log("I'm player " + player_number)
+                            nameText = "/named" + name
+                            pubnub.publish({ // Publish new message when enter is pressed. 
+                                channel : channel, message : nameText
+                            })
+                        }
+                    }
+                }else if(command == "named" && player_number == 1){
+                        var newName = ""
+                        for (i = 6; i < text.length; i++){
+                            letter = text.charAt(i)
+                            newName = newName + letter
+                        }
+                        names.push(newName)
+                        sendNameMessage()
+                        add_display_name(newName, names.length - 1)
+                }else if(command == "names" && player_number != 1){
+                    console.log("names length:", names.length)
+                    var nameArr = ""
+                    for (i = 6; i < text.length; i++){
+                        letter = text.charAt(i)
+                        nameArr = nameArr + letter
+                    }
+                    
+                    if(names.length == 0){
+                        names = nameArr.split(",")
+                        displayNames()
+                    }else{
+                        var new_names = nameArr.split(",")
+                        updateNames(new_names)
+                    }
+                }
+            }
+            
+            function sendNameMessage(){
+                nMessage = "/names" + names.toString()
+                
+                pubnub.publish({ 
+                    channel : channel, message : nMessage
+                })
+            }
+            
+    		function ask_initial(){
+    		    pubnub.publish({ 
+                    channel : channel, message : "/plyr?"
+                })
+                
+                setTimeout(checkPlayerCount, 1000)
+    		}
+    		
+    		function checkPlayerCount(){
+    		    if(num_players == null){
+    		        num_players = 1
+    		        console.log("I am player 1")
+    		        
+    		        player_number = 1
+    		        
+    		        names.push(name)
+    		        displayNames()
+    		        
+    		        pubnub.publish({
+                        channel : channel, message : "/plyrs1"
+                    })
+    		    }
+    		}
+    		
+    		function updateNames(new_names){
+    		    for(var i = 0; i < names.length; i++){
+    		        if(new_names[i] != names[i]){
+    		            console.log("Names at index:", i, " don't match")
+    		        }
+    		    }
+    		    if(new_names.length - names.length == 1){
+    		        console.log("adding one new name")
+    		    }
+    		    add_display_name(new_names[new_names.length - 1], new_names.length - 1)
+    		    names.push(new_names[new_names.length - 1])
+    		}
+    		
+    		function displayNames(){
+
+    		    for(var i = 0; i < names.length; i++){
+    		        console.log("names: ", names)
+    		        console.log("names: ", names[0])
+    		        var name = names[i]
+    		        if(i == 0){
+    		            name += " (host)"
+    		        }
+    		        add_display_name(name, i)
+    		    }
+    		}
+    		
+    		function add_display_name(name, index){
+    		    var start = document.getElementById("players_scroll_container")
+    		    
+    		    var player_box = document.createElement("div")
+    		    player_box.classList.add("player_box")
+    		    player_box.id = "player_box" + index.toString()
+    		    
+    		    var position = document.createElement("div")
+    		    position.classList.add("player_position")
+    		    position.id = "position" + index.toString()
+    		    position.innerHTML = "#1"
+    		    
+    		    var name_text = document.createElement("div")
+    		    name_text.classList.add("name_text")
+    		    name_text.innerHTML = name
+    		    
+    		    var score_text = document.createElement("div")
+    		    score_text.classList.add("score_text")
+    		    score_text.innerHTML = "Score: 0"
+    		    
+    		    
+    		    player_box.appendChild(position)
+    		    player_box.appendChild(name_text)
+    		    player_box.appendChild(score_text)
+    		    
+    		    start.appendChild(player_box)
+    		}
+    		
+    		ask_initial()
+        </script>
+        
+	</body>
+</html>
