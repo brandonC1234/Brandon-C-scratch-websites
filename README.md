@@ -7,7 +7,14 @@ Every folder will be a different website
 
 ## Ranked by Complexity
 #### Most complex
-
+- Math game (1500 lines)
+- Custom Wordle (746 lines)
+- AP Literature Project (949 lines)
+- Drawing Website (508 lines)
+- Helicopter game (687 lines)
+- Math Survey (~390 lines)
+- Loan Calculator (155 lines)
+- Simple Math Game (140 lines)
 #### Simpliest
 
 ## Grouped by grade level during creation
