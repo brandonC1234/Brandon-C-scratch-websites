@@ -41,3 +41,5 @@ If this does happen, have everyone leave and start from beginning of instruction
   a. currently "elephant"
 ## Special aspects
 1. Since there is no server side feature, everything is managed by the client computers, which made the code significantly more complicated to make
+2. All CSS stylings are based on percentages, so everything should scale with window
+3. All text in the equations should scale and be perfectly centered, which is much easier said than done.
