@@ -3,6 +3,7 @@ This is suppose to be a mutliplayer wordle game where players choose a word and 
 
 The program chooses a random word between 5 and 9 letters and plays a wordle round, however, the code does not check if entered in words are correctlty spelled.
 
+#### Intended browser: chrome
 #### codehs link: https://codehs.com/editor/html/5823704/505083/index.html
 
 ## User Instructrions
