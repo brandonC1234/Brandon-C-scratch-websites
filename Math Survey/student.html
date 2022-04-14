@@ -1,0 +1,175 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="icon" type="image/png" href="icon.png">
+        <meta name="description" content="Example of a JavaScript chat app using PubNub JavaScript V4 SDK.">
+  		<meta name="keywords" content="JavaScript,PubNub,Chat,chat-room,chatting,SDK,PubSub-sdk,tutorial">
+        <meta name="author" content="Chandler Mayo">
+        <title>Math question survey</title>
+        
+    </head>
+    <body>
+        <p id="status">One second, lodaing...</p>
+        <div id="box"></div>
+        
+        <div id="options">
+            
+        </div>
+        <br>
+        <button onclick="submit()" style="display:none" id="submitButton">submit</button>
+        
+
+        <input id="input" placeholder="Your Message Here" style="display:none"/>
+        <div id="box" stlye="display:none"></div>
+        
+        <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.23.0.min.js"></script>
+        
+        <script>
+        
+        var pubnub = new PubNub({publishKey : 'Personal pubnub IDs',subscribeKey : 'Personal pubnub IDs'}); // Your PubNub keys here. Get them from https://dashboard.pubnub.com.
+        var box = document.getElementById("box"), input = document.getElementById("input"), channel = 'chat';
+        
+        var gotNums = false;
+        var requestMessage = "/rqst";
+        var requested = false;
+        
+        (function(){
+        	
+        	pubnub.subscribe({channels: [channel]}); // Subscribe to a channel.
+        	pubnub.addListener({message: function(m) {
+        	    var letter = m.message.charAt(0);
+        	    if(letter == "/"){
+        	        checkCommand(m.message);
+        	    }else{
+               	    box.innerHTML = (''+m.message).replace( /[<>]/g, '' ) + '<br>' + box.innerHTML; // Add message to page.
+        	    }
+            }});
+        	input.addEventListener('keypress', function (e) {
+        	    (e.keyCode || e.charCode) === 13 && pubnub.publish({ // Publish new message when enter is pressed. 
+        	        channel : channel, message : input.value, x : (input.value='')
+        	    });
+        	    
+        	    console.log("WHY?");
+        	    
+        	});
+        })();
+        
+        if(requested == false){
+            pubnub.publish({ // Publish new message when enter is pressed. 
+	            channel : channel, message : requestMessage, x : ""
+    	    })
+    	    
+    	    requested = true;
+        }
+        
+        var numbers = [];
+        var numList = ""
+        
+        function checkCommand(message){
+            var command = "";
+                
+            for(i = 1; i < 5;i++){
+                var letter = message.charAt(i);
+                command = command + letter;
+            }
+            
+            if(command == "nums" && gotNums == false){
+                updateNums(message);
+                console.log(gotNums);
+            }
+            
+        }
+        
+        function updateNums(message){
+            
+            for(i=5; i<message.length; i++){
+                newLetter = message.charAt(i)
+                numList = numList + newLetter
+            }
+            
+            for(i=0;i<numList.length/3;i++){
+                num1 = numList.charAt(i*3);
+                num2 = numList.charAt(i*3 + 1)
+                num3 = numList.charAt(i*3 + 2)
+                newNum = num1 + num2 + num3
+                numbers.push(newNum);
+            }
+            
+            for(i=0; i<numbers.length; i++){
+                var choice = document.createElement("input");
+                choice.setAttribute("type", "checkbox")
+                choice.setAttribute("id", numbers[i]);
+                choice.setAttribute("value", numbers[i]);
+                choice.setAttribute("class", "choices");
+                
+                var section = document.getElementById("options");
+                section.appendChild(choice);
+                
+                var label = document.createElement("label");
+                var text = document.createTextNode(numbers[i]);
+                label.appendChild(text)
+                section.appendChild(label);
+                
+                var br = document.createElement("br");
+                section.appendChild(br);
+            }
+            
+            button = document.getElementById("submitButton");
+            button.setAttribute("style", "")
+            
+            var status = document.getElementById("status");
+            status.innerHTML = "Now select the questions you would like to review, and click submit when you are done.";
+            
+            gotNums = true;
+            
+            console.log(numList)
+            console.log(numbers)
+        }
+        
+        function submit(){
+            var chosenNums = []
+            
+            var inputs = document.getElementById("options").querySelectorAll(".choices");
+            
+            for(i=0; i<inputs.length;i++){
+                var input = inputs[i];
+                var chosen = input.checked;
+
+                if(chosen==true){
+                    newNum = input.value;
+                    chosenNums.push(newNum);
+                }else{
+                    
+                }
+            }
+            
+            console.log(chosenNums);
+            
+            var output = "/rslt" + chosenNums;
+            output = output.replace(/,/g, "")
+            
+            pubnub.publish({ // Publish new message when enter is pressed. 
+	            channel : channel, message : output, x : (input.value='')
+    	    })
+    	    
+    	    console.log("Why?")
+    	    
+    	    var elems = document.getElementById("options").querySelectorAll("input, label, br");
+    	    
+    	    for(i=0; i<elems.length;i++){
+    	        var current = elems[i]
+    	        current.remove();
+    	    }
+    	    
+    	    button = document.getElementById("submitButton");
+            button.setAttribute("style", "display:none")
+            
+            var status = document.getElementById("status");
+            status.innerHTML = "Thank you for your input, your selection has been submitted. You may close this page now.";
+    	    
+        }
+        
+        </script>
+    </body>
+</html>
