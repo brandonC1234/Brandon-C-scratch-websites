@@ -1,0 +1,1544 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	    <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="icon" type="image/png" href="icon.png">
+        <meta name="description" content="Example of a JavaScript chat app using PubNub JavaScript V4 SDK.">
+  		<meta name="keywords" content="JavaScript,PubNub,Chat,chat-room,chatting,SDK,PubSub-sdk,tutorial">
+        <meta name="author" content="Chandler Mayo">
+		<title>Math face off</title>
+		<style>
+		    
+		    html {
+		        margin: 0px;
+		        border: 0px;
+		        
+		        height: 100%;
+		    }
+		    
+		    body {
+		        margin: 0px;
+		        border: 0px;
+		        
+		        height: 100%;
+		    }
+		    /* Style the header */
+            header {
+              background-color: white;
+              text-align: center;
+              font-size: 25px;
+              color: black;
+              border-bottom-left-radius: 15px;
+              border-bottom-right-radius: 15px;
+              border-top-left-radius: 15px;
+              border-top-right-radius: 15px;
+            }
+            
+            /* style game sections */
+            .left {
+                background-color: lightblue;
+                float: left;
+                width: 20%;
+                height: 100%;
+            }
+            .center {
+                background-color: white;
+                float: left;
+                width: 60%;
+                height: 100%;
+            }
+            .right {
+                background-color: lightblue;
+                float: left;
+                width: 20%;
+                height: 100%;
+            }
+            
+            .tile {
+                border-bottom-left-radius: 15px;
+                border-bottom-right-radius: 15px;
+                border-top-left-radius: 15px;
+                border-top-right-radius: 15px;
+                
+                margin: 0 auto;
+                border: solid;
+                border-color: lightgrey;
+                border-width: thin;
+                
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                
+                font-size: 5vw;
+                font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+            }
+            
+            .chat_header {
+                display:block;
+                margin:auto;
+                
+                width: 100%;
+                height: 10%;
+                
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                
+                font-size: 3vw;
+                font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+            }
+            .chat_container {
+                border-bottom-left-radius: 20px;
+                border-bottom-right-radius: 20px;
+                border-top-left-radius: 20px;
+                border-top-right-radius: 20px;
+                
+                background-color: white;
+                
+                display:block;
+                margin:auto;
+                width: 80%;
+                height: 60%;
+            }
+            .message_input {
+                float:left;
+                border-bottom-left-radius: 20px;
+                border-bottom-right-radius: 20px;
+                border-top-left-radius: 20px;
+                border-top-right-radius: 20px;
+                
+                width: 60%;
+                height: 50%;
+            }
+            
+            .players_scroll_container {
+                overflow-y: auto;
+                
+                display:block;
+                margin:auto;
+                
+                height: 100%;
+                width: 95%;
+                background-color: blue;
+            }
+            .player_spacer {
+                width: 100%;
+                height: 2%;
+            }
+            .player_box {
+                display:block;
+                width: 100%;
+                height: 10%;
+                
+                background-color: white;
+                align-items: center;
+            }
+            .player_position {
+                float: left;
+                
+                width: 20%;
+                height: 100%;
+                
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                
+                font-size: 2vw;
+                font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+            }
+            .name_text {
+                width: 80%;
+                height: 60%;
+                
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                
+                font-size: 1vw;
+                font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+            }
+            .score_text {
+                width: 80%;
+                height: 30%;
+                
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                
+                font-size: 0.7vw;
+                font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+            }
+            
+            .answer_spacer {
+                float: left;
+                
+                height: 100%;
+                width: 30%;
+            }
+            .answer_container {
+                float: left;
+                
+                height: 80%;
+                width: 20%;
+            }
+            .answer_tile {
+                border-bottom-left-radius: 5px;
+                border-bottom-right-radius: 5px;
+                border-top-left-radius: 5px;
+                border-top-right-radius: 5px;
+                
+                width: 90%;
+                height: 90%;
+                
+                border: solid;
+                border-color: lightgrey;
+                border-width: thin;
+                
+                margin: 0 auto;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                
+                font-size: 6vw;
+                font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+            }
+            
+            .timer_spacer {
+                float: left;
+                
+                width: 30%;
+                height: 80%;
+            }
+            .timer_header {
+                width: 100%;
+                height: 15%;
+            }
+            .timer_number_container {
+                float: left;
+                
+                height: 70%;
+                width: 20%;
+            }
+            .timer_number {
+                border-bottom-left-radius: 5px;
+                border-bottom-right-radius: 5px;
+                border-top-left-radius: 5px;
+                border-top-right-radius: 5px;
+                
+                width: 90%;
+                height: 100%;
+                
+                border: solid;
+                border-color: black;
+                border-width: thin;
+                
+                margin: 0 auto;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                
+                font-size: 4vw;
+                font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+            }
+            
+            .op_character {
+                float: left;
+                
+                width: 13%;
+                height: 100%;
+                
+                margin: 0 auto;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                
+                font-size: 2vw;
+                font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+            }
+            .op_selector {
+                float: left;
+                
+                margin: 0 auto;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                
+                width: 5%;
+                height: 100%;
+            }
+            .op_spacer {
+                float: left;
+                
+                width: 7%;
+                height: 100%;
+            }
+            .stat_container {
+                display: none;
+                
+                width: 100%;
+                height: 5%;
+            }
+            .stat_label {
+                float: left;
+                
+                width: 70%;
+                height: 100%;
+                
+                margin: 0 auto;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                
+                font-size: 1vw;
+                font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+            }
+            .stat_input {
+                float: left;
+                
+                margin: 0 auto;
+                
+                text-align: center;
+                
+                width: 20%;
+                height: 90%;
+                
+                font-size: 1vw;
+                font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+            }
+            .stat_spacer {
+                display: block;
+                
+                width: 100%;
+                height: 2%;
+            }
+            
+            .round_timer_header {
+                height: 20%;
+                width: 100%;
+                font-size: 1vw;
+                font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+                text-align: center;
+            }
+            .round_timer_number_container {
+                float: left;
+                
+                height: 70%;
+                width: 30%;
+            }
+            .round_timer_spacer {
+                float: left;
+                
+                width: 20%;
+                height: 80%;
+            }
+            .round_timer_number {
+                border-bottom-left-radius: 5px;
+                border-bottom-right-radius: 5px;
+                border-top-left-radius: 5px;
+                border-top-right-radius: 5px;
+                
+                width: 90%;
+                height: 100%;
+                
+                border: solid;
+                border-color: black;
+                border-width: thin;
+                
+                margin: 0 auto;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                
+                font-size: 4vw;
+                font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+            }
+            
+            .message_box_container {
+                width: 100%;
+                height: 5%;
+            }
+            .message_box {
+                width: 90%;
+                height: 100%;
+                
+                margin: 0 auto;
+                display: flex;
+                justify-content: left;
+                align-items: center;
+                
+                font-size: 1vw;
+                font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+            }
+            .personal_message_box {
+                width: 90%;
+                height: 100%;
+                
+                margin: 0 auto;
+                display: flex;
+                justify-content: right;
+                align-items: center;
+                
+                font-size: 1vw;
+                font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+            }
+		</style> 
+	</head>
+
+	<body style="height:100%">
+	    <header style="height:5%; width:100%">
+	        <h2 id="leave_warning" style="float: left; width: 20%; height: 100%; font-family:arial; margin:0px; font-size: 3vw"></h2>
+	        <h2 id="upper" style="float: left; width: 60%; height: 100%; font-family:arial; margin:0px; font-size: 2vw" >Welcome to the multiplayer math game.</h2>
+	        <button style="float: left; width: 5%; height: 100%; font-family:arial; margin:0px; font-size: 1vw" onclick = "leave_game()">leave game</button>
+	    </header>
+	    
+	    <div class = "game" style="height:95%">
+	        <div class = "left">
+	            <div class="player_spacer"></div>
+	            <div id="players" style="width:100%; height:60%">
+	                <div class="players_scroll_container" id="players_scroll_container">
+	                    
+	                </div>
+	            </div>
+	            <div style="width: 100%; height: 5%">
+    	            <div style="width: 10%; height: 100%; float:left"></div>
+    	            <div id="op_controls" style="height:100%; width:90%; float: left; display: none">
+    	                <input class="op_selector" type="checkbox" id="+">
+    	                <div class="op_character">+</div>
+    	                <div class="op_spacer"></div>
+    	                
+    	                <input class="op_selector" type="checkbox" id="-">
+    	                <div class="op_character">-</div>
+    	                <div class="op_spacer"></div>
+    	                
+    	                <input class="op_selector" type="checkbox" id="*">
+    	                <div class="op_character">*</div>
+    	                <div class="op_spacer"></div>
+    	                
+    	                <input class="op_selector" type="checkbox" id="/">
+    	                <div class="op_character">/</div>
+    	                <div class="op_spacer"></div>
+    	            </div>
+	            </div>
+	            
+	            <div class="stat_spacer"></div>
+	            <div class="stat_container">
+                    <div class="stat_label">Starting maximum number:</div>
+                    <input class="stat_input" id="starting_max">
+                </div>
+                
+                <div class="stat_spacer"></div>
+                <div class="stat_container">
+                    <div class="stat_label">difficulty multiplier:</div>
+                    <input class="stat_input" id="multiplier">
+                </div>
+                
+                <div class="stat_spacer"></div>
+                <div class="stat_container">
+                    <div class="stat_label">difficulty divisor:</div>
+                    <input class="stat_input" id="divisor">
+                </div>
+                
+                <div class="stat_spacer"></div>
+                <div class="stat_container">
+                    <div class="stat_label">number of operators</div>
+                    <input class="stat_input" id="num_ops">
+                </div>
+                
+                <div id="button_spacer" style="width: 15%; height: 4%; float: left; display = none"></div>
+                <button onclick="create_equation_list()" id="equations_button" style="width: 30%; height: 4%; float: left; margin: 0; display: none; font-size: 0.7vw; font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;">Deploy Equations</button>
+                <div id="button_spacer" style="width: 15%; height: 4%; float: left; display = none"></div>
+                <button onclick="send_start_message()" id="start_button" style="width: 30%; height: 4%; float: left; margin: 0; display: none; font-size: 1vw; font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;">Start round</button>
+                
+	        </div>
+	        <div class = "center" id="center" style="height:100%">
+	            <div id="timer_space" style="height:25%; width:100%">
+	                <div class="timer_header"></div>
+	                <div id="timer_spacer" class="timer_spacer"></div>
+	                <div class="timer_number_container">
+	                    <div id="timer1" class="timer_number"></div>
+	                </div>
+	                <div class="timer_number_container">
+	                    <div id="timer2" class="timer_number"></div>
+	                </div>
+	                <div class="timer_header"></div>
+	            </div>
+	            <div id="equation_space" style="height:40%; width:100%">
+	                <div id="equation_header"></div>
+	            </div>
+	            <div id="answer_space" style="height:35%; width:100%">
+	                <div class="answer_header_spacer" style="width:100%; height:10%"></div>
+	                <div style="width:10%; height:20%; float:left"></div>
+	                <div class="answer_container">
+	                    <div id="answer0" class="answer_tile"></div>
+	                </div>
+	                <div class="answer_container">
+	                    <div id="answer1" class="answer_tile"></div>
+	                </div>  
+	                <div class="answer_container">
+	                    <div id="answer2" class="answer_tile"></div>
+	                </div>
+	                <div class="answer_container">
+	                    <div id="answer3" class="answer_tile"></div>
+	                </div>
+	            </div>
+	        </div>
+	        <div class = "right" style="height:100%">
+	            <div class="chat_header">Chat: </div>
+	            <div class="chat_container" id="chat_container"></div>
+	            <div id="input_message_container" style="height:10%; width:100%">
+	                <div id="input_message_spacer" style="height:10%; width:100%"></div>
+	                <div id="message_input_spacer" style="height:10%; width:10%; float:left"></div>
+	                <input id="message_input" class="message_input"></input>
+	                <div id="send_button_container" style="float:left; height:50%; width:20%">
+	                    <div id="send_button_spacer" style="height:25%; width:100%"></div>
+	                    <button id="send_button" style="float:left" onclick="sendText()">send</button>
+	                </div>
+	            </div>
+	            <div id="round_timer_container" style="height: 20%; width: 100%;">
+	                <div class="round_timer_header">Round Timer:</div>
+	                <div id="round_timer_spacer" class="round_timer_spacer"></div>
+	                <div class="round_timer_number_container">
+	                    <div id="round_timer1" class="round_timer_number"></div>
+	                </div>
+	                <div class="round_timer_number_container">
+	                    <div id="round_timer2" class="round_timer_number"></div>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+	    <script id="chat_script" src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.23.0.min.js"></script>
+        <script>
+            var name = ""
+            var names = []
+            var scores = []
+            var confirmations = []
+            var completes = []
+            var player_number = null
+            var num_players = null
+            var last_update_num = 100
+            var teacher = false
+            var teacher_name = ""
+            var equation_message = ""
+            var left_game = false
+            
+            var typing_mode = "game"
+            var tries = 6
+            var wordLength = 6
+            var length_mode = "random"
+            
+            var tryCount = 0
+            var playing = true
+            var font_size = "30px"
+            
+            var word = "abc"
+            var guess = ""
+            
+            var min = 0
+            var max = 10
+            var multiplier = 1
+            var divisor = 1
+            
+            var timer_interval
+            
+            var time = 10
+            var round_time = 90
+            var curr_time = time
+            var curr_round_time = round_time
+            var done = false
+            var out_of_time = false
+            
+            var score = 0
+            var round_score = 0
+            
+            var equations = []
+            
+            var num_equation = 0
+    		
+    		function start_game(){
+    		    clearGuess()
+    		    
+    		    num_equation = 0
+    		    round_score = 0
+    		    
+    		    createEquation(equations[num_equation][0], equations[num_equation][1])
+    		    
+    		    done = false
+    		    playing = true
+    		    
+    		    curr_time = time
+    		    curr_round_time = round_time
+    		    timer_iteration()
+    		    timer_interval = setInterval(timer_iteration, 1000)
+    		}
+    		
+    		function timer_iteration(){
+    		    console.log("why")
+    		    var first_num = document.getElementById("timer1")
+    		    if(curr_time > 10){
+    		        var tens =  Math.floor(curr_time / 10)
+    		        first_num.innerHTML = tens
+    		    }else{
+    		        first_num.innerHTML = ""
+    		    }
+    		    
+    		    var second_num = document.getElementById("timer2")
+    		    second_num.innerHTML = curr_time % 10
+    		    
+    		    if(curr_time <= 5 && curr_time > 0){
+    		        first_num.style.backgroundColor = "red"
+    		        first_num.style.opacity = (1 / curr_time).toString()
+    		        
+    		        second_num.style.backgroundColor = "red"
+    		        second_num.style.opacity = (1 / curr_time).toString()
+    		    }
+    		    
+    		    var first_round_num = document.getElementById("round_timer1")
+    		    if(curr_round_time > 10){
+    		        var tens =  Math.floor(curr_round_time / 10)
+    		        first_round_num.innerHTML = tens
+    		    }else{
+    		        first_round_num.innerHTML = ""
+    		    }
+    		    
+    		    var second_round_num = document.getElementById("round_timer2")
+    		    second_round_num.innerHTML = curr_round_time % 10
+    		    
+    		    if(curr_round_time <= 5 && curr_round_time > 0){
+    		        first_round_num.style.backgroundColor = "red"
+    		        first_round_num.style.opacity = (1 / curr_round_time).toString()
+    		        
+    		        second_round_num.style.backgroundColor = "red"
+    		        second_round_num.style.opacity = (1 / curr_round_time).toString()
+    		    }
+    		    
+    		    if(curr_time == 0 || curr_round_time == 0){
+    		        out_of_time = true
+    		        
+    		        check()
+    		    }
+    		    curr_time -= 1
+    		    curr_round_time -= 1
+    		}
+    		
+    		function clear_timer(){
+    		    var first_num = document.getElementById("timer1")
+    		    var second_num = document.getElementById("timer2")
+    		    
+    		    first_num.innerHTML = ""
+    		    second_num.innerHTML = ""
+    		    
+    		    first_num.style.backgroundColor = "white"
+    		    first_num.style.opacity = "1"
+    		        
+    		    second_num.style.backgroundColor = "white"
+    		    second_num.style.opacity = "1"
+    		    
+    		    var first_round_num = document.getElementById("round_timer1")
+    		    var second_round_num = document.getElementById("round_timer2")
+    		    
+    		    first_round_num.innerHTML = ""
+    		    second_round_num.innerHTML = ""
+    		    
+    		    first_round_num.style.backgroundColor = "white"
+    		    first_round_num.style.opacity = "1"
+    		        
+    		    second_round_num.style.backgroundColor = "white"
+    		    second_round_num.style.opacity = "1"
+    		}
+    		
+    		function wordle_type(character){
+    		    if(playing == true){
+    		        if(guess.length < 4){
+    		            var new_number = String.fromCharCode(character)
+    		            guess += new_number
+    		            
+    		            var id_string = "answer" + (guess.length - 1).toString()
+    		            var tile = document.getElementById(id_string)
+    		            
+    		            tile.innerHTML = new_number
+    		        }
+    		    }
+    		}
+    		
+    		function backspace(){
+    		    if(playing == true){
+    		        if(guess.length > 0){
+    		            var id_string = "answer" + (guess.length - 1).toString()
+    		            var tile = document.getElementById(id_string)
+    		            
+    		            tile.innerHTML = ""
+    		            
+    		            guess = guess.slice(0, -1)
+    		        }
+    		    }
+    		}
+    		
+    		function solve_equation(nums, ops){
+    		    if(nums.length - ops.length != 1){
+    		        window.alert("invalid equation")
+    		        return 0
+    		    }
+    		    var temp_nums = nums.slice()
+    		    var temp_ops = ops.slice()
+    		    
+    		    while(temp_nums.length != 1){
+    		        if(temp_ops.indexOf("/") != -1 || temp_ops.indexOf("*") != -1){
+    		            var found = false
+    		            for(var i = 0; i < ops.length; i++){
+    		                if((temp_ops[i] == "/" || temp_ops[i] == "*") && found == false){
+    		                    var curr_op = temp_ops[i]
+    		                    var result = 0
+    		                    
+    		                    if(curr_op == "/"){
+    		                        result = temp_nums[i] / temp_nums[i + 1]
+    		                    }else if(curr_op == "*"){
+    		                        result = temp_nums[i] * temp_nums[i + 1]
+    		                    }
+    		                    temp_nums[i] = result
+    		                    
+    		                    temp_nums.splice(i + 1, 1)
+    		                    temp_ops.splice(i, 1)
+    		                    
+    		                    console.log(temp_nums.slice(), temp_ops.slice())
+    		                    
+    		                    found = true
+    		                }
+    		            }
+    		        }else{
+    		            var found = false
+    		            for(var i = 0; i < ops.length; i++){
+    		                if((temp_ops[i] == "-" || temp_ops[i] == "+") && found == false){
+    		                    var curr_op = temp_ops[i]
+    		                    var result = 0
+    		                    
+    		                    if(curr_op == "+"){
+    		                        result = temp_nums[i] + temp_nums[i + 1]
+    		                    }else if(curr_op == "-"){
+    		                        result = temp_nums[i] - temp_nums[i + 1]
+    		                    }
+    		                    temp_nums[i] = result
+    		                    
+    		                    temp_nums.splice(i + 1, 1)
+    		                    temp_ops.splice(i, 1)
+    		                    
+    		                    console.log(temp_nums.slice(), temp_ops.slice())
+    		                    
+    		                    found = true
+    		                }
+    		            }
+    		        }
+    		    }
+    		    
+    		    return temp_nums[0]
+    		}
+    		
+    		function check(){
+    		    if(playing == true){
+    		        if(guess == "" && out_of_time == false){
+    		            console.log("Invalid input")
+    		            //add invalid input reply
+    		        }else{
+    		            clearInterval(timer_interval)
+    		            clear_timer()
+    		            
+    		            console.log("why")
+    		            
+    		            var header = document.getElementById("upper")
+    		            
+    		            if(out_of_time == true){
+    		                done = true
+    		                playing = false
+    		                console.log("Person lost")
+    		                
+    		                header.innerHTML = "Out of time!"
+    		                
+    		                setTimeout(clear_header, 10000)
+    		                
+    		            }else{
+        		            var attempt = guess.toString()
+        		            
+        		            answer_num = solve_equation(equations[num_equation][0], equations[num_equation][1])
+            		        
+            		        if(attempt == answer_num){
+            		            round_score += 1
+            		            
+            		            if(num_equation != equations.length - 1){
+            		                header.innerHTML = "Correct!"
+            		                setTimeout(clear_header, 1000)
+            		            
+            		                num_equation += 1
+        		                    createEquation(equations[num_equation][0], equations[num_equation][1])
+                		            
+                		            curr_time = time
+                		            timer_iteration()
+                		            timer_interval = setInterval(timer_iteration, 1000)
+                		            
+                		            clearGuess()
+            		            }else{
+            		                header.innerHTML = "Correct! But we ran out of equations"
+                		            setTimeout(clear_header, 5000)
+                		            
+            		                console.log("ran out of equations")
+            		                
+            		                done = true;
+            		                playing = false;
+            		                clearGuess();
+    		                        clearEquation();
+            		                
+            		            }
+            		            
+            		            
+            		        }else{
+            		            done = true
+            		            playing = false
+            		            header.innerHTML = "Incorrect. Answer: " + answer_num
+            		            
+            		            setTimeout(clear_header, 10000)
+            		        }
+    		            }
+    		        }
+    		        if(done == true){
+    		            console.log("sending complete message")
+    		            var complete_message = "/cmplt" + player_number.toString() + "," + round_score.toString()
+    		            pubnub.publish({ 
+                            channel : channel, message : complete_message
+                        })
+    		        }
+    		    }else{
+    		        window.alert("you must click start first")
+    		    }
+    		}
+    		
+    		function end_solve_time(){
+    		    done = true;
+    		    clearGuess();
+    		    clearEquation();
+    		    header.innerHTML = "Times up!"
+            	setTimeout(clear_header, 5000)
+    		}
+    		
+    		function clearGuess(){
+    		    guess = ""
+    		    
+    		    var tiles = document.getElementsByClassName("answer_tile")
+    		    for(var i = 0; i < tiles.length; i++){
+    		        tiles[i].innerHTML = "";
+    		    }
+    		    
+    		}
+    		
+    		function clear_header(){
+    		    var header = document.getElementById("upper")
+    		    
+    		    header.innerHTML = "Welcome to the multiplayer math game."
+    		    
+    		    header.style.color = "black"
+    		}
+    		
+    		function clearEquation(){
+    		    //clear board
+    		    var elements = document.getElementsByClassName("num_container");
+                while(elements.length > 0){
+                    elements[0].parentNode.removeChild(elements[0]);
+                }
+                
+                var elements = document.getElementsByClassName("op_container");
+                while(elements.length > 0){
+                    elements[0].parentNode.removeChild(elements[0]);
+                }
+    		}
+    		
+    		function createEquation(nums, ops){
+                clearEquation()
+    		    
+    		    var width_num = (100 / (nums.length + ops.length))
+    		    var width = width_num.toString() + "%"
+    		    
+    		    var start = document.getElementById("equation_space")
+    		    
+    		    var height_num = 100 * ((start.clientWidth * (width_num / 100)) / start.clientHeight)
+    		    var height = height_num.toString() + "%"
+    		    
+    		    //set equation header spacing
+    		    var equation_header = document.getElementById("equation_header")
+    		    equation_header.style.height = ((100 - (100 * ((start.clientWidth * (width_num / 100)) / start.clientHeight)))/2).toString() + "%"
+    		    
+    		    for(var i = 0; i < nums.length; i++){
+    		        var num_container = document.createElement("div")
+    		        num_container.classList.add("num_container")
+    		            
+    		        num_container.style.width = width
+    		        num_container.style.height = height
+    		        num_container.style.float = "left"
+    		        
+    		        start.appendChild(num_container)
+    		        
+    		        
+    		        var num_box = document.createElement("div")
+    		        
+    		        num_box.classList.add("tile")
+    		        num_box.style.height = "100%"
+    		        num_box.style.width = "90%"
+    		        
+    		        num_box.innerHTML = nums[i]
+    		        
+    		        num_container.appendChild(num_box)
+    		        
+    		        if(i != nums.length - 1){
+    		            var op_container = document.createElement("div")
+        		        op_container.classList.add("op_container")
+        		            
+        		        op_container.style.width = width
+        		        op_container.style.height = height
+        		        op_container.style.float = "left"
+        		        
+        		        start.appendChild(op_container)
+        		        
+        		        var op_header_spacer = document.createElement("div")
+        		        op_header_spacer.classList.add("op_header")
+        		        op_header_spacer.style.height = "10%"
+        		        op_header_spacer.style.width = "100%"
+        		        
+        		        op_container.appendChild(op_header_spacer)
+    		            
+    		            var op_box = document.createElement("div")
+    		            op_box.classList.add("tile")
+    		            op_box.style.height = "80%"
+    		            op_box.style.width = "80%"
+    		            
+    		            op_box.innerHTML = ops[i]
+    		            
+    		            op_container.appendChild(op_box)
+    		        }
+    		    }
+    		}
+            
+            document.onkeydown = function(e){
+                e = e || window.event;
+                var key = e.which || e.keyCode;
+                
+                if(typing_mode == "game" && left_game == false){
+                    console.log(key)
+                    if(key >= 48 && key <= 57){
+                        wordle_type(key)
+                    }
+                    if(key == 13){
+                        //enter key is pressed
+                        check()
+                    }
+                    if(key == 8){
+                        //backspace is pressed
+                        backspace()
+                    }
+                    if(key == 189){
+                        //negative symbol
+                        wordle_type(45)
+                    }
+                }
+            }
+            
+            var pubnub = new PubNub({publishKey : 'pub-c-51ca985b-c2f8-4d71-a3db-2cc512b9f65a',subscribeKey : 'sub-c-2561c962-823c-11ec-9f2b-a2cedba671e8'}); // Your PubNub keys here. Get them from https://dashboard.pubnub.com.
+            var channel = 'chat'
+            pubnub.subscribe({channels: [channel]}); // Subscribe to a channel.
+            
+            (function(){
+            	
+            	
+            	pubnub.addListener({message: function(m) {
+            	    console.log(m.message)
+            	    var letter = m.message.charAt(0);
+            	    if(letter == "/"){
+            	        checkCommand(m.message);
+            	    }else{
+                   	    // Add message to page.
+            	    }
+                }});
+            })();
+            
+            function checkCommand(text){
+                var command = "";
+                    
+                for(i = 1; i < 6;i++){
+                    var letter = text.charAt(i);
+                    command += letter;
+                }
+                
+                console.log(command)
+                
+                if(command == "plyr?"){
+                    if(teacher == true){
+                        num_players += 1
+                        text = "/plyrs" + num_players
+                        pubnub.publish({ 
+                            channel : channel, message : text
+                        })
+                    }
+                }else if(command == "plyrs"){
+                    if(teacher == false){
+                        if(player_number == null){
+                            name = window.prompt("Player name:", "Johnny Appleseed")
+                            window.alert("Please click the leave game button to leave rather than just closing the tab")
+                        }
+                        
+                        var numText = ""
+                        for (i = 6; i < text.length; i++){
+                            letter = text.charAt(i)
+                            numText = numText + letter
+                        }
+                        num = parseFloat(numText)
+                        num_players = num
+                        console.log("There are " + num_players + " players.")
+                        
+                        if(player_number == null){
+                            player_number = num_players
+                            console.log("I'm player " + player_number)
+                            nameText = "/named" + name
+                            pubnub.publish({ // Publish new message when enter is pressed. 
+                                channel : channel, message : nameText
+                            })
+                        }
+                    }
+                }else if(command == "named" && teacher == true){
+                        var newName = ""
+                        for (i = 6; i < text.length; i++){
+                            letter = text.charAt(i)
+                            newName = newName + letter
+                        }
+                        
+                        last_update_num += 1;
+                        
+                        names.push(newName)
+                        scores.push(0)
+                        sendNameMessage()
+                        show_names()
+                }else if(command == "stats" && teacher == false){
+                    console.log("updating stats")
+                    var nameArr = ""
+                    for (i = 6; i < text.length; i++){
+                        letter = text.charAt(i)
+                        nameArr = nameArr + letter
+                    }
+                    
+                    var new_status = nameArr.split(",")
+                    console.log(new_status[2])
+                    var names_arr_text = new_status[2].toString()
+                    new_status[2] = names_arr_text.split("|")
+                    
+                    var scores_arr_text = new_status[3].toString()
+                    new_status[3] = scores_arr_text.split("|")
+                    
+                    update_names(new_status);
+                }else if(command == "eqats" && teacher == false){
+                    var eq_message = ""
+                    for (i = 6; i < text.length; i++){
+                        letter = text.charAt(i)
+                        eq_message = eq_message + letter
+                    }
+                    var stuff = eq_message.split("$")
+                    var temp_eq_list = read_equation_message(stuff[1], parseInt(stuff[0]))
+                    var eq_length = parseInt(stuff[0])
+                    
+                    console.log(temp_eq_list.length, eq_length)
+                    
+                    if(temp_eq_list.length == eq_length){
+                        equations = temp_eq_list.slice()
+                        console.log("new equations:", equations)
+            		    var confirm_message = "/confm" + player_number.toString()
+            		    pubnub.publish({ 
+                            channel : channel, message : confirm_message
+                        })
+                    }else{
+                        console.log("Incorrect equation list length")
+                    }
+                }else if(command == "start" && teacher == false){
+                    var start_message = ""
+                    for (i = 6; i < text.length; i++){
+                        letter = text.charAt(i)
+                        start_message = start_message + letter
+                    }
+                    var start_stats = start_message.split(",")
+                    round_time = parseInt(start_stats[0])
+                    time = parseInt(start_stats[1])
+                    
+                    start_game()
+                }else if(command == "confm" && teacher == true){
+                    var num_message = ""
+                    for (i = 6; i < text.length; i++){
+                        letter = text.charAt(i)
+                        num_message = num_message + letter
+                    }
+                    var confirm_number = parseInt(num_message)
+                    confirms[confirm_number - 1 - 1] = true
+                }else if(command == "cmplt" && teacher == true){
+                    console.log("Anayzling complete command")
+                    var num_message = ""
+                    for (i = 6; i < text.length; i++){
+                        letter = text.charAt(i)
+                        num_message = num_message + letter
+                    }
+                    var complete_details = num_message.split(",")
+                    var num_complete = parseInt(complete_details[0])
+                    var new_score = parseInt(complete_details[1])
+                    console.log("New score:", new_score)
+                    completes[num_complete - 1 - 1] = true
+                    scores[num_complete - 1 - 1] += new_score
+                    
+                    check_completes()
+                }else if(command == "messg"){
+                    var command_text = ""
+                    for (i = 6; i < text.length; i++){
+                        letter = text.charAt(i)
+                        command_text = command_text + letter
+                    }
+                    var message_details = command_text.split("~")
+                    var sender_number = parseInt(message_details[0])
+                    var sender = message_details[1]
+                    var message_text = message_details[2]
+                    console.log("sender:", sender, "message:", message_text)
+                    
+                    add_message(sender_number, sender, message_text)
+                }else if(command == "tlave"){
+                    window.alert("The teacher has left, please close this window and start a new game.")
+                }else if(command == "leave" && teacher == true){
+                    var leave_num_text = ""
+                    for (i = 6; i < text.length; i++){
+                        letter = text.charAt(i)
+                        leave_num_text = leave_num_text + letter
+                    }
+                    
+                    var leave_num = parseInt(leave_num_text)
+                    remove_player(leave_num)
+                }else if(command == "chnge" && teacher == false){
+                    var num_text = ""
+                    for (i = 6; i < text.length; i++){
+                        letter = text.charAt(i)
+                        num_text = num_text + letter
+                    }
+                    var num_arr = num_text.split(",")
+                    num_players = parseInt(num_arr[1])
+                    change_player_num(parseInt(num_arr[0]))
+                }
+            }
+            
+            function add_message(sender_num, sender, text){
+                var start = document.getElementById("chat_container")
+                
+                var container = document.createElement("div")
+                container.classList.add("message_box_container")
+                
+                var message_box = document.createElement("div")
+                var message_text
+                if(sender_num == player_number){
+                    message_box.classList.add("personal_message_box")
+                    message_text = text
+                }else{
+                    message_box.classList.add("message_box")
+                    message_text = sender + ": " + text
+                    
+                }
+                message_box.innerHTML = message_text
+                
+                container.appendChild(message_box)
+                start.appendChild(container)
+            }
+            
+            function update_names(stats){
+                var cur_update_num = stats[0]
+                
+                if(cur_update_num > last_update_num){
+                    teacher_name = stats[1]
+                    name_arr_length = stats[4]
+                    console.log(name_arr_length, stats[2], stats[3])
+                    
+                    if(name_arr_length != stats[2].length || name_arr_length != stats[3].length){
+                        console.log("name_array_length is incorrect")
+                    }else{
+                        names = stats[2]
+                        scores = stats[3]
+                        
+                        for(var x = 0; x < scores.length; x++){
+                            scores[x] = parseInt(scores[x])
+                        }
+                        
+                        show_names()
+                        last_update_num += 1
+                    }
+                }
+                
+            }
+            
+            function sendNameMessage(){
+                var status = [last_update_num, teacher_name, names.join("|"), scores.join("|"), names.length]
+                nMessage = "/stats" + status.toString()
+                
+                pubnub.publish({ 
+                    channel : channel, message : nMessage
+                })
+            }
+            
+    		function ask_initial(){
+    		    pubnub.publish({ 
+                    channel : channel, message : "/plyr?"
+                })
+                
+                setTimeout(checkPlayerCount, 5000)
+    		}
+    		
+    		function checkPlayerCount(){
+    		    if(num_players == null){
+    		        var teacher_attempt = window.prompt("No game found. Password for teacher:")
+    		        if(teacher_attempt == "elephant"){
+    		            name = window.prompt("Teacher name:", "Mrs. Feygelson")
+    		            teacher = true
+    		            player_number = -100
+    		            teacher_name = name
+    		            
+    		            show_teacher_controls()
+    		            
+    		            num_players = 1
+        		        show_names()
+        		        
+        		        pubnub.publish({
+                            channel : channel, message : "/plyrs1"
+                        })
+    		        }else{
+    		            window.alert("wrong password, please wait for Mrs. Feygelson to start the game")
+    		        }
+    		    }
+    		}
+    		
+    		function clearNames(){
+    		    //clear board
+    		    var elements = document.getElementsByClassName("player_box");
+                while(elements.length > 0){
+                    elements[0].parentNode.removeChild(elements[0]);
+                }
+    		}
+    		
+    		function show_names(){
+    		    clearNames()
+    		    
+    		    //add teacher name
+    		    add_display_name(teacher_name, "T", "T", "Teacher")
+    		    
+    		    //organize the names
+    		    var temp_names = names.slice()
+    		    var temp_scores = scores.slice()
+    		    
+    		    for(var i = 0; i < temp_scores.length; i++){
+    		        var highest = temp_scores[i]
+    		        var highest_index = i;
+    		        for(var x = i; x < temp_scores.length; x++){
+    		            if(temp_scores[x] > highest){
+    		                highest = temp_scores[x]
+    		                highest_index = x
+    		            }
+    		        }
+    		        var temp = temp_scores[i]
+    		        temp_scores[i] = highest
+    		        temp_scores[highest_index] = temp
+    		        
+    		        var temp_name = temp_names[i]
+    		        temp_names[i] = temp_names[highest_index]
+    		        temp_names[highest_index] = temp_name
+    		    }
+
+                console.log("names: ", temp_names)
+    		    console.log("scores: ", temp_scores)
+
+    		    for(var i = 0; i < names.length; i++){
+    		        //console.log("names: ", names)
+    		        //console.log("names: ", names[0])
+    		        add_display_name(temp_names[i], i, i + 1, temp_scores[i])
+    		    }
+    		}
+    		
+    		function add_display_name(name, index, rank, score){
+    		    var start = document.getElementById("players_scroll_container")
+    		    
+    		    var player_box = document.createElement("div")
+    		    player_box.classList.add("player_box")
+    		    player_box.id = "player_box" + index.toString()
+    		    
+    		    var position = document.createElement("div")
+    		    position.classList.add("player_position")
+    		    position.id = "position" + index.toString()
+    		    position.innerHTML = rank
+    		    
+    		    var name_text = document.createElement("div")
+    		    name_text.classList.add("name_text")
+    		    name_text.innerHTML = name
+    		    
+    		    var score_text = document.createElement("div")
+    		    score_text.classList.add("score_text")
+    		    score_text.innerHTML = "score: " + score
+    		    
+    		    
+    		    player_box.appendChild(position)
+    		    player_box.appendChild(name_text)
+    		    player_box.appendChild(score_text)
+    		    
+    		    start.appendChild(player_box)
+    		}
+    		
+    		function sendText(){
+    		    var message = document.getElementById("message_input").value
+    		    
+    		    if(message != ""){
+    		        messageText = "/messg" + player_number.toString() + "~" + name + "~" + message
+    		        
+    		        pubnub.publish({ // Publish new message when enter is pressed. 
+                        channel : channel, message : messageText
+                    })
+                    
+                    document.getElementById("message_input").value = ""
+    		    }
+    		}
+    		
+    		function show_teacher_controls(){
+    		    if(teacher == true){
+    		        //add the operator selectors
+    		        document.getElementById("button_spacer").style.display = "initial"
+    		        document.getElementById("equations_button").style.display = "initial"
+    		        document.getElementById("op_controls").style.display = "block"
+    		        document.getElementById("start_button").style.display = "initial"
+    		        
+    		        op_element_classes = ["stat_container"]
+    		        op_element_styles = ["block"]
+    		        for(var i = 0; i < op_element_classes.length; i++){
+        		        var elements = document.getElementsByClassName(op_element_classes[i])
+        		        for(var x = 0; x < elements.length; x++){
+        		            elements[x].style.display = op_element_styles
+        		        }
+    		        }
+    		    }
+    		}
+    		
+    		function create_equation_list(){
+    		    available_ops = ["+", "-", "*", "/"]
+    		    chosen_ops = []
+    		    
+    		    var op_choices = document.getElementsByClassName("op_selector")
+    		    for(var i = 0; i < 4; i++){
+    		        if(op_choices[i].checked == true){
+    		            chosen_ops.push(available_ops[i])
+    		        }
+    		    }
+    		    
+    		    var max = parseInt(document.getElementById("starting_max").value)
+    		    var multiplier = parseInt(document.getElementById("multiplier").value)
+    		    var divisor = parseInt(document.getElementById("divisor").value)
+    		    var num_ops = parseInt(document.getElementById("num_ops").value)
+    		    var num_equations = 50
+    		    var t = 0
+    		    
+    		    var equation_list = []
+    		    
+    		    for(var i = 0; i < num_equations; i++){
+    		        var equation_nums = []
+        		    var equation_ops = []
+    		        var answer = 0.5
+    		        
+    		        while(answer % 1 != 0 || answer > 9999 || answer < -999){
+        		        equation_nums = []
+        		        equation_ops = []
+        		        
+        		        for(var x = 0; x < num_ops + 1; x++){
+        		            equation_nums.push(Math.floor(Math.random() * max) + 1)
+        		        }
+        		        for(var y = 0; y < num_ops; y++){
+        		            equation_ops.push(chosen_ops[Math.floor(Math.random() * chosen_ops.length)])
+        		        }
+        		        answer = solve_equation(equation_nums, equation_ops)
+    		        }
+    		        
+    		        
+    		        
+    		        equation_list.push([equation_nums, equation_ops])
+    		        //console.log([equation_nums, equation_ops])
+    		        t += 1
+    		        max = max + (multiplier * Math.floor(t / divisor))
+    		    }
+    		    
+    		    console.log(equation_list)
+    		    
+    		    //send the equation list message
+    		    var splits = ["|", "~"]
+    		    equation_message = ""
+    		    for(var i = 0; i < equation_list.length; i++){
+    		        var equation_text = ""
+    		        equation_text += equation_list[i][0].toString()
+    		        equation_text += splits[1]
+    		        equation_text += equation_list[i][1].toString()
+    		        
+    		        equation_message += equation_text
+    		        
+    		        if(i != equation_list.length - 1){
+    		            equation_message += splits[0]
+    		        }
+    		    }
+    		    
+    		    console.log(equation_message)
+    		    
+    		    var equation_command = "/eqats" + equation_list.length.toString() + "$" + equation_message
+    		    pubnub.publish({ 
+                    channel : channel, message : equation_command
+                })
+    		    
+    		    set_confirms()
+    		}
+    		
+    		function read_equation_message(text, num_equations){
+    		    console.log("reading equation")
+    		    //double check message text conversion
+    		    var test_equation_list = text.split("|")
+    		    var final_test_equation = []
+    		    
+    		    for(var i = 0; i < num_equations; i++){
+    		        var equation = test_equation_list[i].split("~")
+    		        console.log("Equation length:", equation.length)
+    		        var equation_nums_list = equation[0].split(",")
+    		        var equation_ops_list = equation[1].split(",")
+    		        
+    		        for(var x = 0; x < equation_nums_list.length; x++){
+    		            equation_nums_list[x] = parseInt(equation_nums_list[x])
+    		        }
+    		        
+    		        final_test_equation.push([equation_nums_list, equation_ops_list])
+    		    }
+    		    
+    		    console.log(final_test_equation, final_test_equation.length)
+    		    return final_test_equation
+    		}
+    		
+    		function send_start_message(){
+    		    if(check_confirms() == true && num_players != 1){
+    		        var round_time = window.prompt("What would you like the ROUND timer to be in seconds?")
+        		    var equation_time = window.prompt("What would you like the EQUATION timer to be in seconds? (0 for none)")
+        		    
+        		    var start_message = "/start" + round_time + "," + equation_time
+        		    pubnub.publish({ 
+                        channel : channel, message : start_message
+                    })
+    		    }else{
+    		        window.alert("still waiting for students to confirm equations")
+    		    }
+    		    
+    		}
+    		
+    		function set_confirms(){
+    		    if(teacher == true){
+    		        confirms = []
+    		        for(var i = 0; i < num_players - 1; i++){
+    		            confirms.push(false)
+    		        }
+    		    }
+    		}
+    		
+    		function check_confirms(){
+    		    var all_true = true
+    		    
+    		    for(var i = 0; i < num_players - 1; i++){
+    		        if(confirms[i] == false){
+    		            all_true = false
+    		        }
+    		    }
+    		    
+    		    return all_true
+    		}
+    		
+    		function set_completes(){
+    		    if(teacher == true){
+    		        completes = []
+    		        for(var i = 0; i < num_players - 1; i++){
+    		            completes.push(false)
+    		        }
+    		    }
+    		}
+    		
+    		function check_completes(){
+    		    if(teacher == true){
+    		        var all_true = true
+    		    
+        		    for(var i = 0; i < num_players - 1; i++){
+        		        if(completes[i] == false){
+        		            all_true = false
+        		        }
+        		    }
+        		    
+        		    if(all_true == true){
+        		        show_names()
+        		        
+        		        last_update_num += 1
+        		        sendNameMessage()
+        		    }
+    		    }
+    		}
+    		
+    		//functions to account for people leaving or joining mid game
+    		window.onbeforeunload = function () {
+    		    if(left_game == false){
+                    return "Are you sure you want to leave the game";
+    		    }
+            };
+            
+            function leave_game(){
+                send_leave_message()
+                left_game = true
+                window.alert("you may close the tab in 4 seconds")
+                setTimeout(close_window, 4000)
+            }
+            
+            function close_window(){
+                window.close()
+                document.body.innerHTML = "";
+                window.alert("You may close the tab now")
+            }
+            
+    		function send_leave_message(){
+    		    if(player_number != null){
+    		        if(teacher == false){
+    		            var leave_message = "/leave" + player_number.toString()
+    		            pubnub.publish({ 
+                            channel : channel, message : leave_message
+                        })
+    		        }else{
+    		            var teacher_leave_message = "/tlave"
+    		            pubnub.publish({ 
+                            channel : channel, message : teacher_leave_message
+                        })
+    		        }
+    		    }
+    		}
+    		
+    		function remove_player(num){
+    		    if(teacher == true){
+    		        names.splice(num - 1 - 1, 1)
+    		        scores.splice(num - 1 - 1, 1)
+    		        last_update_num += 1
+    		        num_players -= 1
+    		        send_change_message(num)
+    		        sendNameMessage()
+    		        show_names()
+    		    }
+    		}
+    		
+    		function send_change_message(num){
+    		    var change_message = "/chnge" + num.toString() + "," + num_players.toString()
+    		    pubnub.publish({ 
+                    channel : channel, message : change_message
+                })
+    		}
+    		
+    		function change_player_num(num){
+    		    if(player_number > num){
+    		        player_number -= 1;
+    		    }
+    		}
+    		
+    		ask_initial()
+        </script>
+        
+	</body>
+</html>
