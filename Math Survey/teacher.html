@@ -1,0 +1,220 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="icon" type="image/png" href="icon.png">
+        <meta name="description" content="Example of a JavaScript chat app using PubNub JavaScript V4 SDK.">
+  		<meta name="keywords" content="JavaScript,PubNub,Chat,chat-room,chatting,SDK,PubSub-sdk,tutorial">
+        <meta name="author" content="Chandler Mayo">
+        <title>Math question survey</title>
+    </head>
+    <body>
+        <p>Hi Mrs. Feygleson. Enter the numbers for the homework and click submit.</p>
+        <input id="numInput" placeholder="Copy and paste the math numbers, with commas" size="100"></input>
+        <br>
+        <br>
+        <button onclick="setNums()">submit</button>
+        
+        <p id="numDisplay"></p>
+        <button onclick="analyzeResults()">check results</button>
+        
+        <div id="results">
+            
+        </div>
+        
+        <input id="input" placeholder="Your Message Here" style="display:none"/>
+        <div id="box"></div>
+        
+        
+        
+        <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.23.0.min.js"></script>
+        <script>
+        
+        var nums = []
+        var chosen = []
+        var resultNums = []
+        var resultPlaces = []
+        
+        var pubnub = new PubNub({publishKey : 'Personal pubnub IDs',subscribeKey : 'Personal pubnub IDs'}); // Your PubNub keys here. Get them from https://dashboard.pubnub.com.
+        var box = document.getElementById("box"), input = document.getElementById("input"), channel = 'chat';
+        
+        var gotNums = false;
+        
+        (function(){
+        	
+        	pubnub.subscribe({channels: [channel]}); // Subscribe to a channel.
+        	pubnub.addListener({message: function(m) {
+        	    var letter = m.message.charAt(0);
+        	    if(letter == "/"){
+        	        checkCommand(m.message);
+        	    }else{
+               	    box.innerHTML = (''+m.message).replace( /[<>]/g, '' ) + '<br>' + box.innerHTML; // Add message to page.
+        	    }
+            }});
+        	input.addEventListener('keypress', function (e) {
+        	    (e.keyCode || e.charCode) === 13 && pubnub.publish({ // Publish new message when enter is pressed. 
+        	        channel : channel, message : input.value, x : (input.value='')
+        	    });
+        	    
+        	    console.log("WHy?")
+        	    
+        	});
+        })();
+        
+        function checkCommand(message){
+            command = ""
+            
+            for(i=1;i<5;i++){
+                newLetter = message.charAt(i);
+                command = command + newLetter
+            }
+            
+            console.log(command)
+            
+            if(command == "rqst"){
+                sendNums();
+            }else if(command == "rslt"){
+                addResult(message);
+            }
+        }
+        
+        function setNums(){
+            var input = document.getElementById("numInput").value;
+            input = input.replace(/ /g, "")
+            nums = input.split(",");
+            
+            var display = document.getElementById("numDisplay")
+            var numsText = nums.join(", ")
+            display.innerHTML = "Question numbers: " + numsText
+            
+            for(i=0;i<nums.length;i++){
+                
+                var number = nums[i]
+                if(number<10){
+                    var newNumber = "00" + number;
+                    nums[i] = newNumber;
+                }else if(number<100){
+                    var newNumber = "0" + number;
+                    nums[i] = newNumber;
+                }else{
+                    
+                }
+            }
+            
+            console.log(nums);
+        }
+        
+        function sendNums(){
+            
+            console.log(nums);
+            
+            if (nums != []){
+                
+                output = "/nums" + nums
+                output = output.replace(/,/g, "")
+                
+                pubnub.publish({ // Publish new message when enter is pressed. 
+	            channel : channel, message : output, x : (input.value='')
+    	        })
+    	        
+    	        console.log("IDK")
+    	        
+            }else{
+                
+            }
+        }
+        
+        function addResult(message){
+            var result = ""
+            
+            for(i=5; i<message.length;i++){
+                newLetter = message.charAt(i);
+                result = result + newLetter;
+            }
+            
+            for(i=0; i<result.length/3;i++){
+                num1 = result.charAt(i*3)
+                num2 = result.charAt(i*3 + 1)
+                num3 = result.charAt(i*3 + 2)
+                newNum = num1 + num2 + num3
+                chosen.push(newNum);
+            }
+            
+            console.log(chosen)
+            
+        }
+        
+        function analyzeResults(){
+            
+            if(chosen != []){
+                var done = false
+            }else{
+                var done = true;
+            }
+            
+            var testNums = chosen;
+            
+            t = 0;
+            
+            while(done == false && t < 5){
+                var keyWord = testNums[0];
+                var first = 0;
+                var second = 0;
+                var third = 0
+                var fourth = 0;
+                
+                done2 = false
+                var times = 0
+                while(done2 == false){
+                    var test = testNums.indexOf(keyWord)
+                    
+                    if(test == -1){
+                        done2 = true;
+                    }else{
+                        testNums.splice(test,1);
+                        times = times + 1
+                    }
+                    
+                }
+                
+                
+                
+                var test2 = testNums [0];
+                
+                if(test2 == null){
+                    done = true;
+                }
+                
+                resultNums.push(keyWord)
+                resultNums.push(times)
+                resultPlaces.push(times);
+            }
+            
+            console.log(resultNums);
+            console.log(resultPlaces);
+            
+            resultPlaces = resultPlaces.sort(function(a,b){return b-a});
+            
+            for(i=0; i<resultPlaces.length;i++){
+                place = resultPlaces[i]
+                spot = resultNums.indexOf(place);
+                
+                number = resultNums[spot-1]
+                
+                resultNums.splice(spot-1, 2)
+                
+                var element = document.createElement("p");
+                var message = number + " was selected " + place + " times."
+                element.innerHTML = message
+                
+                results.appendChild(element);
+                
+                console.log(resultNums);
+            }
+            
+            
+        }
+        
+        </script>
+    </body>
+</html>
