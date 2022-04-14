@@ -1,6 +1,7 @@
 ## Overview
 This is a website that I made for a project in AP Literature where we create a visualization of the concept of invisiblility from Raplh Ellison's Invisible Man. I decided to make a website that shows how the way people appear changes when you look at them through different lenses.
 
+#### Intended browser: chrome
 #### codehs link: https://codehs.com/editor/html/6435988/505083/index.html
 
 ## User Instructrions
