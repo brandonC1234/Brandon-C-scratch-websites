@@ -36,7 +36,7 @@ If this does happen, have everyone leave and start from beginning of instruction
 
 ## Recreation Instructions
 1. Because this code utilizes pubnub to communicate between devices, you must go to their website and use your own pubnub ID
-  a. labeled "Personal pubnub IDs" in example code
+  a. labeled "Personal pubnub keys" in example code
 3. Please replace teacher password
   a. currently "elephant"
 ## Special aspects
