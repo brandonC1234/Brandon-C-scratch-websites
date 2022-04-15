@@ -12,6 +12,7 @@ Every folder will be a different website
 - AP Literature Project (949 lines)
 - Drawing Website (508 lines)
 - Helicopter game (687 lines)
+- Piano Chord Game (839 lines)
 - Math Survey (~390 lines)
 - Loan Calculator (155 lines)
 - Simple Math Game (140 lines)
@@ -22,6 +23,6 @@ Every folder will be a different website
 | ----------- | ----------- |
 | Middle School | - Helicopter game |
 | 9th | Text        |
-| 10th | text |
+| 10th | - Piano Chord Game |
 | 11th | - Math Survey <br> - Simple Math Game <br> - Loan Calculator |
 | 12th | - Math game <br> - Custom Wordle <br> - AP Literature Project <br> - Drawing Website |
