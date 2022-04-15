@@ -23,6 +23,6 @@ Every folder will be a different website
 | ----------- | ----------- |
 | Middle School | - Helicopter game |
 | 9th | No notable HTML codes. <br> Was starting to experiement with HTML in small pages <br> Rather than making large projects |
-| 10th | - Piano Chord Game |
+| 10th | - Piano Chord Game <br> - RNA encoder and decoder |
 | 11th | - Math Survey <br> - Simple Math Game <br> - Loan Calculator |
 | 12th | - Math game <br> - Custom Wordle <br> - AP Literature Project <br> - Drawing Website |
