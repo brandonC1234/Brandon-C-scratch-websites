@@ -8,7 +8,8 @@ This is a game I made to help me learn piano chords. It currently does all of th
 2. click run
 3. The website will display a chord name
 4. Click the keys for the chord
-  a. Ckicking the keys again will unselect them
+
+  a. Clicking the keys again will unselect them
 5. The game will automatically submit the chord when the correct keys are selected
 
 ## Recreation Instructions
