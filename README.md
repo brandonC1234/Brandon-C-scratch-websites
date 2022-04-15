@@ -20,8 +20,8 @@ Every folder will be a different website
 ## Grouped by grade level during creation
 | Grade Level      | Websites |
 | ----------- | ----------- |
-| Middle School | asdf     |
+| Middle School | - Helicopter game |
 | 9th | Text        |
-| 10th | Text        |
+| 10th | - Drawing Website |
 | 11th | - Math Survey <br> - Simple Math Game <br> - Loan Calculator |
 | 12th | - Math game <br> - Custom Wordle <br> - AP Literature Project <br> - Drawing Website |
