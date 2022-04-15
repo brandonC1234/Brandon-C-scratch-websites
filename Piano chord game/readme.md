@@ -10,6 +10,7 @@ This is a game I made to help me learn piano chords. It currently does all of th
 4. Click the keys for the chord
 
   a. Clicking the keys again will unselect them
+
 5. The game will automatically submit the chord when the correct keys are selected
 
 ## Recreation Instructions
