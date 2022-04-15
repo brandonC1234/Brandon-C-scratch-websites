@@ -11,8 +11,12 @@ This is a game I made to help me learn piano chords. It currently does all of th
 
   a. Clicking the keys again will unselect them
 
-5. The game will automatically submit the chord when the correct keys are selected
-6. If the chord is correct, the game will display "correct" in the console, clear the piano and display another chord
+5. You can also type on the keyboard to fill in keys
+
+  a. press shift to change between normal keys and sharps (Upper text indicates the mode)
+
+6. The game will automatically submit the chord when the correct keys are selected
+7. If the chord is correct, the game will display "correct" in the console, clear the piano and display another chord
 
 ## Recreation Instructions
 1. This utilizes codehs's Javascript Graphics API, so you will have to look up how to transfer it to a website.
