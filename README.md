@@ -22,6 +22,6 @@ Every folder will be a different website
 | ----------- | ----------- |
 | Middle School | - Helicopter game |
 | 9th | Text        |
-| 10th | - Drawing Website |
+| 10th | text |
 | 11th | - Math Survey <br> - Simple Math Game <br> - Loan Calculator |
 | 12th | - Math game <br> - Custom Wordle <br> - AP Literature Project <br> - Drawing Website |
