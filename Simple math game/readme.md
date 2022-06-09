@@ -13,8 +13,7 @@ This is a simple single player math game and is the predecessor to the more comp
 7. Click check to test the solution
 8. If it's correct, you get a point, if it's wrong, you lose and the score is displayed
 9. You must guess within the timer
-  
-  a. a 5 second and 3 second warning will appear
+    1.  a 5 second and 3 second warning will appear
 
 ## Recreation Instructions
 1. Should transfer easily
