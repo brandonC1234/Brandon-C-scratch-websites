@@ -7,7 +7,7 @@ Every folder will be a different website
 
 ## Ranked by Complexity
 #### Most complex
-- Math game (1500 lines)
+- Math game (1544 lines)
 - AP Literature Game (1220 lines)
 - Custom Wordle (746 lines)
 - AP Literature Project (949 lines)
