@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>RNA decoder and encoder</title>
+	</head>
+
+	<body>
+		<h4 id="upper">enter in the code or message, then click convert to go from DNA to RNA, or press decode to decode RNA message.</h4>
+		
+        <input id="input" placeholder="Your Message Here" size="100">
+        </input> <p id="errorBox"></p>		
+		<br>
+		<button onclick="decode()">decode</button>
+        <button onclick="convert()">convert</button>
+        <button onclick="encode()">encode</button>
+        <button onclick="substitute()">substitution</button>
+        <button onclick="deleteCodon()">deletion</button>
+        <button onclick="insertCodon()">insertion</button>
+		<h4 id="letterText">hi</h4>
+        <h4 id="wordText">hello</h4>
+        <h4 id="codonText"></h4>
+        <h4 id="letterText2" style="display:none"></h4>
+        <br>
+        <h4 id="wordText2" style="display:none"></h4>
+        <br>
+        <h4 id="codonText2" style="display:none"></h4>
+        <br>
+        <button id="copyCode" onclick="copyConvert()" style="display:none"></button>
+
+		<script>
+		
+		var codons = [];
+		var newletters=[];
+		
+		
+		    function decode(){
+		        document.getElementById("copyCode").style = "display:none"
+		        document.getElementById("letterText2").style = "display:none";
+		        document.getElementById("wordText2").style = "display:none";
+		        document.getElementById("codonText2").style = "display:none";
+		        var message = document.getElementById("input").value;
+		        message = message.replace(/,/g, "");
+		        if(message.length % 3 != 0){
+		            document.getElementById("errorBox").innerHTML = "not divisible by three"
+		            document.getElementById("upper").innerHTML = "Your code, not including commas, must be divisible by 3"
+		        }else{
+		            document.getElementById("errorBox").innerHTML = "";
+		            document.getElementById("upper").innerHTML = "The decoded message and the amino acids in it are down below";
+		            
+		            codons = [];
+		            
+		            
+		            
+		            for(var i = 0; i < message.length / 3; i++){
+		                
+		                var newCodon = "";
+		                var group = i * 3;
+		                
+		                
+		                newCodon = newCodon + message.charAt(group);
+		                newCodon = newCodon + message.charAt(group + 1);
+		                newCodon = newCodon + message.charAt(group + 2);
+		                
+		                codons.push(newCodon);
+		                
+		            }
+		            analyze(codons);
+		        }
+		        
+		        
+		    }
+		
+		function analyze(codons){
+		    var letters = "";
+		    var words = [];
+		    var badLetter = false;
+		    var badNum = [];
+		    console.log(codons);
+		    for(var i = 0; i < codons.length; i++){
+		        
+		        var letter = "";
+		        var word = "";
+		        var combo = codons[i]
+		        var first = combo.charAt(0);
+		        var second = combo.charAt(1);
+		        var third = combo.charAt(2);
+		        console.log(third);
+		        
+		        if(first != "g" && first != "G" && first != "c" && first != "C" && first != "a" && first != "A" && first != "u" && first != "U"){
+		            badLetter = true;
+		            badNum.push((i * 3) + 1);
+		        }else if(second != "g" && second != "G" && second != "c" && second != "C" && second != "a" && second != "A" && second != "u" && second != "U"){
+		            badLetter = true;
+		            badNum.push((i * 3) + 2)
+		        }else if(third != "g" && third != "G" && third != "c" && third != "C" && third != "a" && third != "A" && third != "u" && third != "U"){
+		            badLetter = true
+		            badNum.push((i * 3) + 3)
+		        }else{
+    		              
+    		        if(first == "a" || first == "A"){
+    		            if(second == "a" || second == "A"){
+    		                if(third == "a" || third == "A"){
+    		                    letter = "K";
+    		                    word = "Lysine";
+    
+    		                }else if(third == "u" || third == "U"){
+    		                    letter = "N";
+    		                    word = "Asparagine"
+    		                }else if(third == "c" || third == "C"){
+    		                    letter = "N";
+    		                    word = "Asparagine"
+    		                }else if(third == "g" || third == "G"){
+    		                    letter = "K";
+    		                    word = "Lysine";
+    		                }else{
+    		                    
+    		                }
+    		            }else if(second == "U" || second == "u"){
+    		                if(third == "G" || third == "g"){
+    		                    letter = "M";
+    		                    word = "Methionine"
+    		                }else{
+    		                    letter = "I";
+    		                    word = "Isoleucine";
+    		                }
+    		            }else if(second == "c" || second == "C"){
+    		                letter = "T";
+    		                word = "Threonine";
+    		            }else if(second == "G" || second == "g"){
+    		                if(third == "a" || third == "A"){
+    		                    letter = "R";
+    		                    word = "Arginine";
+    
+    		                }else if(third == "u" || third == "U"){
+    		                    letter = "S";
+    		                    word = "Serine"
+    		                }else if(third == "c" || third == "C"){
+    		                    letter = "S";
+    		                    word = "Serine";
+    		                }else if(third == "g" || third == "G"){
+    		                    letter = "R";
+    		                    word = "Arginine";
+    		                }else{
+    		                    
+    		                }
+    		            }else{
+    		                
+    		            }
+    		        }else if(first == "U" || first == "u"){
+    		            if(second == "a" || second == "A"){
+    		                
+    		              
+    		                if(third == "a" || third == "A"){
+    		                    letter = "stop";
+    		                    word = "stop";
+    		                }else if(third == "u" || third == "U"){
+    		                    letter = "Y";
+    		                    word = "Tyrosine"
+    		                }else if(third == "c" || third == "C"){
+    		                    letter = "Y";
+    		                    word = "Tyrosine"
+    		                }else if(third == "g" || third == "G"){
+    		                    letter = "stop";
+    		                    word = "stop";
+    		                }else{
+    		                    
+    		                }
+    		            }else if(second == "U" || second == "u"){
+    		                if(third == "a" || third == "A"){
+    		                    letter = "L";
+    		                    word = "Leucine";
+    		                }else if(third == "u" || third == "U"){
+    		                    letter = "F";
+    		                    word = "Phenylalanine"
+    		                }else if(third == "c" || third == "C"){
+    		                    letter = "F";
+    		                    word = "Phenylalanine"
+    		                }else if(third == "g" || third == "G"){
+    		                    letter = "L";
+    		                    word = "Leucine";
+    		                }else{
+    		                    
+    		                }
+    		            }else if(second == "c" || second == "C"){
+    		                letter = "S";
+    		                word = "Serine";
+    		            }else if(second == "G" || second == "g"){
+    		                if(third == "a" || third == "A"){
+    		                    letter = "stop";
+    		                    word = "stop";
+    
+    		                }else if(third == "u" || third == "U"){
+    		                    letter = "C";
+    		                    word = "Cysteine"
+    		                }else if(third == "c" || third == "C"){
+    		                    letter = "C";
+    		                    word = "Cysteine";
+    		                }else if(third == "g" || third == "G"){
+    		                    letter = "W";
+    		                    word = "Tryptophan";
+    		                }else{
+    		                    
+    		                }
+    		            }else{
+    		                
+    		            }
+    		        }else if(first == "c" || first == "C"){
+    		            if(second == "a" || second == "A"){
+    		                
+    		              
+    		                if(third == "a" || third == "A"){
+    		                    letter = "Q";
+    		                    word = "Glutamine";
+    		                }else if(third == "u" || third == "U"){
+    		                    letter = "H";
+    		                    word = "Histidine"
+    		                }else if(third == "c" || third == "C"){
+    		                    letter = "H";
+    		                    word = "Histidine"
+    		                }else if(third == "g" || third == "G"){
+    		                    letter = "Q";
+    		                    word = "Glutamine";
+    		                }else{
+    		                    
+    		                }
+    		            }else if(second == "U" || second == "u"){
+    		                letter = "L"
+    		                word = "Leucine"
+    		            }else if(second == "c" || second == "C"){
+    		                letter = "P";
+    		                word = "Proline";
+    		            }else if(second == "G" || second == "g"){
+    		                letter = "R";
+    		                word = "Arginine";
+    		            }else{
+    		                
+    		            }
+    		        }else if(first == "g" || first == "G"){
+    		            if(second == "a" || second == "A"){
+    		                
+    		              
+    		                if(third == "a" || third == "A"){
+    		                    letter = "E";
+    		                    word = "Glutamic Acid";
+    		                }else if(third == "u" || third == "U"){
+    		                    letter = "D";
+    		                    word = "Asparic Acid";
+    		                }else if(third == "c" || third == "C"){
+    		                    letter = "D";
+    		                    word = "Aspartic Acid"
+    		                }else if(third == "g" || third == "G"){
+    		                    letter = "E";
+    		                    word = "Glutamic Acid";
+    		                }else{
+    		                    
+    		                }
+    		            }else if(second == "U" || second == "u"){
+    		                letter = "V"
+    		                word = "Valine"
+    		            }else if(second == "c" || second == "C"){
+    		                letter = "A";
+    		                word = "Alanine";
+    		            }else if(second == "G" || second == "g"){
+    		                letter = "G";
+    		                word = "Glycine";
+    		            }else{
+    		                
+    		            }
+    		        }else{
+    		            
+    		        }
+		        }  
+
+                console.log(letter);
+		        letters = letters + letter;
+		        words.push(word);
+
+		    }
+		    
+		    if(badLetter == true){
+		        
+		        document.getElementById("errorBox").innerHTML = "bad letter at: " + badNum;
+		        document.getElementById("This isfor RNA codes, if the code is DNA, make sure to convert it.")
+		        document.getElementById("letterText").innerHTML = "";
+		        document.getElementById("wordText").innerHTML = "";
+		        document.getElementById("codonText").innerHTML = "";
+		        
+		    }else{
+
+	    	    document.getElementById("letterText").innerHTML = letters;
+		        document.getElementById("wordText").innerHTML = words;
+		        document.getElementById("codonText").innerHTML = codons;
+		    }
+		    
+		}
+		
+		
+		function convert(){
+		    
+		    document.getElementById("letterText2").style = "display:none";
+		    document.getElementById("wordText2").style = "display:none";
+		    document.getElementById("codonText2").style = "display:none";
+		    document.getElementById("codonText").innerHTML = "";
+		    document.getElementById("errorBox").innerHTML = "";
+		    var code = document.getElementById("input").value;
+		    code = code.replace(/,/g, "");
+		    var newCode = "";
+		    var badLetter = false;
+		    var badPositions = [];
+		    for(var i = 0; i < code.length; i++){
+		        var letter = code.charAt(i);
+		        var newLetter;
+		        
+		        if(letter == "t" || letter == "T"){
+		            newLetter = "A";
+		        }else if(letter == "g" || letter == "G"){
+		            newLetter = "C";
+		        }else if(letter == "c" || letter == "C"){
+		            newLetter = "G";
+		        }else if(letter == "a" || letter == "A"){
+		            newLetter = "U";
+		        }else{
+		            badLetter = true;
+		            badPositions.push(i + 1)
+		        }
+		        
+		        newCode = newCode + newLetter;
+		    }
+		    if(badLetter == true){
+		        document.getElementById("upper").innerHTML = "Remember this code is DNA code being converted to RNA, so it should not have any U's"
+		        document.getElementById("errorBox").innerHTML = "bad letter at: " + badPositions;
+		        document.getElementById("letterText").innerHTML = "";
+    		    document.getElementById("wordText").innerHTML = "";
+		    }else{
+    		    document.getElementById("upper").innerHTML = "your converted code is below, click the copy code button to copy it to decode.";
+    		    document.getElementById("letterText").innerHTML = "your new code is below";
+    		    document.getElementById("wordText").innerHTML = newCode;
+    		    document.getElementById("copyCode").style = "display:initial"
+    		    document.getElementById("copyCode").innerHTML = "copy code";
+    		    
+    		    var newCodons;
+		    
+		        newCodons = [];
+		            
+		            
+		            
+	            for(var i = 0; i < newCode.length / 3; i++){
+	                
+	                var newCodon = "";
+	                var group = i * 3;
+	                
+	                
+	                newCodon = newCodon + newCode.charAt(group);
+	                newCodon = newCodon + newCode.charAt(group + 1);
+	                newCodon = newCodon + newCode.charAt(group + 2);
+	                
+	                newCodons.push(newCodon);
+	                
+	            }
+	            
+	            document.getElementById("codonText").innerHTML = newCodons;
+    		    
+		    }
+		}
+		
+		function encode(){
+		    
+		    
+		    document.getElementById("copyCode").style = "display:none"
+	        document.getElementById("letterText2").style = "display:none";
+	        document.getElementById("wordText2").style = "display:none";
+	        document.getElementById("codonText2").style = "display:none";
+		    var message = document.getElementById("input").value;
+		    var newMessage = "";
+		    var newWords = [];
+		    var badLetter = false;
+		    var badPos = [];
+		    var newCodons = [];
+		    
+		    for(var i = 0; i < message.length; i++){
+		        var letter = message.charAt(i);
+		        var newcodon;
+		        var newWord;
+		        
+		        if(letter == "a" || letter == "A"){
+		            newcodon = "GCA";
+		            newWord = "Alanine";
+		        }else if(letter == "r" || letter == "R"){
+		            newcodon = "AGG";
+		            newWord = "Arginine";
+		        }else if(letter == "n" || letter == "N"){
+		            newcodon = "AAU";
+		            newWord = "Asparagine";
+		        }else if(letter == "d" || letter == "D"){
+		            newcodon = "GAC";
+		            newWord = "Asparatic Acid";
+		        }else if(letter == "c" || letter == "C"){
+		            newcodon = "UGU";
+		            newWord = "Cysteine";
+		        }else if(letter == "e" || letter == "E"){
+		            newcodon = "GAG";
+		            newWord = "Glutamic Acid";
+		        }else if(letter == "q" || letter == "Q"){
+		            newcodon = "CAG";
+		            newWord = "Glutamine";
+		        }else if(letter == "g" || letter == "G"){
+		            newcodon = "GGA";
+		            newWord = "Glycine";
+		        }else if(letter == "h" || letter == "H"){
+		            newcodon = "CAU";
+		            newWord = "Histadine";
+		        }else if(letter == "i" || letter == "I"){
+		            newcodon = "AUC";
+		            newWord = "Isoleucine";
+		        }else if(letter == "l" || letter == "L"){
+		            newcodon = "UUG";
+		            newWord = "Leucine";
+		        }else if(letter == "k" || letter == "K"){
+		            newcodon = "AAG";
+		            newWord = "Lysine";
+		        }else if(letter == "m" || letter == "M"){
+		            newcodon = "AUG";
+		            newWord = "Methionine";
+		        }else if(letter == "f" || letter == "F"){
+		            newcodon = "UUU";
+		            newWord = "Phenylalanine";
+		        }else if(letter == "p" || letter == "P"){
+		            newcodon = "CCA";
+		            newWord = "Proline";
+		        }else if(letter == "s" || letter == "S"){
+		            newcodon = "AGU";
+		            newWord = "Serine";
+		        }else if(letter == "t" || letter == "T"){
+		            newcodon = "ACG";
+		            newWord = "Threonine";
+		        }else if(letter == "w" || letter == "W"){
+		            newcodon = "UGG";
+		            newWord = "Tryptophan";
+		        }else if(letter == "y" || letter == "Y"){
+		            newcodon = "UAC";
+		            newWord = "Tyrosine";
+		        }else if(letter == "v" || letter == "V"){
+		            newcodon = "GUC";
+		            newWord = "Valine";
+		        }else if(letter == " "){
+		            newcodon = "UGA";
+		            newWord = "stop";
+		        }else{
+		            badLetter = true;
+		            badPos.push(i + 1);
+		        }
+		        newCodons.push(newcodon);
+		        newMessage = newMessage + newcodon;
+		        newWords.push(newWord);
+		    }
+		    
+		    if(badLetter == true){
+		        document.getElementById("upper").innerHTML = "You can not use: B, O, J, U, X, Z"; 
+		        document.getElementById("errorBox").innerHTML = "bad letter at: " + badPos; 
+		        document.getElementById("letterText").innerHTML = ""; 
+		        document.getElementById("wordText").innerHTML = ""; 
+		    }else{
+		        document.getElementById("upper").innerHTML = "Your code, in RNA format, is down below";
+		        document.getElementById("errorBox").innerHTML = "";
+		        document.getElementById("letterText").innerHTML = newMessage;
+		        document.getElementById("wordText").innerHTML = newWords;
+		        document.getElementById("codonText").innerHTML = newCodons;
+		    }
+		    
+		    
+		}
+		
+		function copyConvert(){
+		    var code = document.getElementById("wordText").innerHTML
+		    
+		    document.getElementById("input").value = code;
+		    
+		    document.getElementById("copyCode").style = "display:none"
+		}
+		
+		function substitute(){
+		    var message = document.getElementById("input").value;
+            
+            var message = document.getElementById("input").value;
+		        message = message.replace(/,/g, "");
+		   if(message.length % 3 != 0){
+		    document.getElementById("errorBox").innerHTML = "not divisible by three"
+		    document.getElementById("upper").innerHTML = "Your code, not including commas, must be divisible by 3"
+		  }else{
+            
+            var pos = Math.floor(Math.random() * message.length);
+            console.log(pos);
+		    var first = message.slice(0, pos)
+		    var second = message.slice(pos + 1, message.length);
+		    var num = Math.floor(Math.random() * 4);
+		    var letter;
+		    var origin = message.charAt(pos);
+		    if(num == 0 && origin != "A" && origin != "a"){
+		        letter = "A"
+		    }else if(num == 1 && origin != "U" && origin != "u"){
+		        letter = "U"
+		    }else if(num == 2 && origin != "U" && origin != "u"){
+		        letter = "G"
+		    }else if(num == 3 || origin != "C"){
+		        letter = "C"
+		    }else{
+		        letter = "A"
+		    }
+		    console.log(num);
+		    var newMessage = first + letter + second;
+		    console.log(newMessage);
+		    var newCodons;
+		    
+		    newCodons = [];
+		            
+		            
+		            
+	            for(var i = 0; i < newMessage.length / 3; i++){
+	                
+	                var newCodon = "";
+	                var group = i * 3;
+	                
+	                
+	                newCodon = newCodon + newMessage.charAt(group);
+	                newCodon = newCodon + newMessage.charAt(group + 1);
+	                newCodon = newCodon + newMessage.charAt(group + 2);
+	                
+	                newCodons.push(newCodon);
+	                
+	            }
+	            
+	            var orgCodons;
+		    
+		    orgCodons = [];
+		            
+		            
+		            
+	            for(var i = 0; i < message.length / 3; i++){
+	                
+	                var newCodon = "";
+	                var group = i * 3;
+	                
+	                
+	                newCodon = newCodon + message.charAt(group);
+	                newCodon = newCodon + message.charAt(group + 1);
+	                newCodon = newCodon + message.charAt(group + 2);
+	                
+	                orgCodons.push(newCodon);
+	                
+	            }
+	            
+	            
+	            
+	            
+	            
+	            examine(newCodons, "sub", orgCodons);
+	            
+		  }
+		}
+		function examine(codons, mode, original){
+			console.log(codons + "org:" + original);
+		    var letters = "";
+		    var words = [];
+		    var badLetter = false;
+		    var badNum = [];
+		    console.log(codons);
+		    for(var i = 0; i < codons.length; i++){
+		        
+		        var letter = "";
+		        var word = "";
+		        var combo = codons[i]
+		        var first = combo.charAt(0);
+		        var second = combo.charAt(1);
+		        var third = combo.charAt(2);
+		        console.log(third);
+		        
+		        if(first != "g" && first != "G" && first != "c" && first != "C" && first != "a" && first != "A" && first != "u" && first != "U"){
+		            badLetter = true;
+		            badNum.push((i * 3) + 1);
+		        }else if(second != "g" && second != "G" && second != "c" && second != "C" && second != "a" && second != "A" && second != "u" && second != "U"){
+		            badLetter = true;
+		            badNum.push((i * 3) + 2)
+		        }else if(third != "g" && third != "G" && third != "c" && third != "C" && third != "a" && third != "A" && third != "u" && third != "U"){
+		            badLetter = true
+		            badNum.push((i * 3) + 3)
+		        }else{
+    		              
+    		        if(first == "a" || first == "A"){
+    		            if(second == "a" || second == "A"){
+    		                if(third == "a" || third == "A"){
+    		                    letter = "K";
+    		                    word = "Lysine";
+    
+    		                }else if(third == "u" || third == "U"){
+    		                    letter = "N";
+    		                    word = "Asparagine"
+    		                }else if(third == "c" || third == "C"){
+    		                    letter = "N";
+    		                    word = "Asparagine"
+    		                }else if(third == "g" || third == "G"){
+    		                    letter = "K";
+    		                    word = "Lysine";
+    		                }else{
+    		                    
+    		                }
+    		            }else if(second == "U" || second == "u"){
+    		                if(third == "G" || third == "g"){
+    		                    letter = "M";
+    		                    word = "Methionine"
+    		                }else{
+    		                    letter = "I";
+    		                    word = "Isoleucine";
+    		                }
+    		            }else if(second == "c" || second == "C"){
+    		                letter = "T";
+    		                word = "Threonine";
+    		            }else if(second == "G" || second == "g"){
+    		                if(third == "a" || third == "A"){
+    		                    letter = "R";
+    		                    word = "Arginine";
+    
+    		                }else if(third == "u" || third == "U"){
+    		                    letter = "S";
+    		                    word = "Serine"
+    		                }else if(third == "c" || third == "C"){
+    		                    letter = "S";
+    		                    word = "Serine";
+    		                }else if(third == "g" || third == "G"){
+    		                    letter = "R";
+    		                    word = "Arginine";
+    		                }else{
+    		                    
+    		                }
+    		            }else{
+    		                
+    		            }
+    		        }else if(first == "U" || first == "u"){
+    		            if(second == "a" || second == "A"){
+    		                
+    		              
+    		                if(third == "a" || third == "A"){
+    		                    letter = "stop";
+    		                    word = "stop";
+    		                }else if(third == "u" || third == "U"){
+    		                    letter = "Y";
+    		                    word = "Tyrosine"
+    		                }else if(third == "c" || third == "C"){
+    		                    letter = "Y";
+    		                    word = "Tyrosine"
+    		                }else if(third == "g" || third == "G"){
+    		                    letter = "stop";
+    		                    word = "stop";
+    		                }else{
+    		                    
+    		                }
+    		            }else if(second == "U" || second == "u"){
+    		                if(third == "a" || third == "A"){
+    		                    letter = "L";
+    		                    word = "Leucine";
+    		                }else if(third == "u" || third == "U"){
+    		                    letter = "F";
+    		                    word = "Phenylalanine"
+    		                }else if(third == "c" || third == "C"){
+    		                    letter = "F";
+    		                    word = "Phenylalanine"
+    		                }else if(third == "g" || third == "G"){
+    		                    letter = "L";
+    		                    word = "Leucine";
+    		                }else{
+    		                    
+    		                }
+    		            }else if(second == "c" || second == "C"){
+    		                letter = "S";
+    		                word = "Serine";
+    		            }else if(second == "G" || second == "g"){
+    		                if(third == "a" || third == "A"){
+    		                    letter = "stop";
+    		                    word = "stop";
+    
+    		                }else if(third == "u" || third == "U"){
+    		                    letter = "C";
+    		                    word = "Cysteine"
+    		                }else if(third == "c" || third == "C"){
+    		                    letter = "C";
+    		                    word = "Cysteine";
+    		                }else if(third == "g" || third == "G"){
+    		                    letter = "W";
+    		                    word = "Tryptophan";
+    		                }else{
+    		                    
+    		                }
+    		            }else{
+    		                
+    		            }
+    		        }else if(first == "c" || first == "C"){
+    		            if(second == "a" || second == "A"){
+    		                
+    		              
+    		                if(third == "a" || third == "A"){
+    		                    letter = "Q";
+    		                    word = "Glutamine";
+    		                }else if(third == "u" || third == "U"){
+    		                    letter = "H";
+    		                    word = "Histidine"
+    		                }else if(third == "c" || third == "C"){
+    		                    letter = "H";
+    		                    word = "Histidine"
+    		                }else if(third == "g" || third == "G"){
+    		                    letter = "Q";
+    		                    word = "Glutamine";
+    		                }else{
+    		                    
+    		                }
+    		            }else if(second == "U" || second == "u"){
+    		                letter = "L"
+    		                word = "Leucine"
+    		            }else if(second == "c" || second == "C"){
+    		                letter = "P";
+    		                word = "Proline";
+    		            }else if(second == "G" || second == "g"){
+    		                letter = "R";
+    		                word = "Arginine";
+    		            }else{
+    		                
+    		            }
+    		        }else if(first == "g" || first == "G"){
+    		            if(second == "a" || second == "A"){
+    		                
+    		              
+    		                if(third == "a" || third == "A"){
+    		                    letter = "E";
+    		                    word = "Glutamic Acid";
+    		                }else if(third == "u" || third == "U"){
+    		                    letter = "D";
+    		                    word = "Asparic Acid";
+    		                }else if(third == "c" || third == "C"){
+    		                    letter = "D";
+    		                    word = "Aspartic Acid"
+    		                }else if(third == "g" || third == "G"){
+    		                    letter = "E";
+    		                    word = "Glutamic Acid";
+    		                }else{
+    		                    
+    		                }
+    		            }else if(second == "U" || second == "u"){
+    		                letter = "V"
+    		                word = "Valine"
+    		            }else if(second == "c" || second == "C"){
+    		                letter = "A";
+    		                word = "Alanine";
+    		            }else if(second == "G" || second == "g"){
+    		                letter = "G";
+    		                word = "Glycine";
+    		            }else{
+    		                
+    		            }
+    		        }else{
+    		            
+    		        }
+		        }  
+
+                console.log(letter);
+		        letters = letters + letter;
+		        words.push(word);
+
+		    }
+		    
+		    if(badLetter == true){
+		        
+		        document.getElementById("errorBox").innerHTML = "bad letter at: " + badNum;
+		        document.getElementById("This is for RNA codes, if the code is DNA, make sure to convert it.")
+		        document.getElementById("letterText").innerHTML = "";
+		        document.getElementById("wordText").innerHTML = "";
+		        document.getElementById("codonText").innerHTML = "";
+		        
+		    }else{
+
+	    	    document.getElementById("letterText").innerHTML = letters;
+		        document.getElementById("wordText").innerHTML = words;
+		        document.getElementById("codonText").innerHTML = codons;
+		        
+		        examineOrg(original, mode);
+		    }
+		    
+		}
+		
+		function examineOrg(codons, mode){
+			console.log(codons)
+		    var letters = "";
+		    var words = [];
+		    var badLetter = false;
+		    var badNum = [];
+		    console.log(codons);
+		    for(var i = 0; i < codons.length; i++){
+		        
+		        var letter = "";
+		        var word = "";
+		        var combo = codons[i]
+		        var first = combo.charAt(0);
+		        var second = combo.charAt(1);
+		        var third = combo.charAt(2);
+		        console.log(third);
+		        
+		        if(first != "g" && first != "G" && first != "c" && first != "C" && first != "a" && first != "A" && first != "u" && first != "U"){
+		            badLetter = true;
+		            badNum.push((i * 3) + 1);
+		        }else if(second != "g" && second != "G" && second != "c" && second != "C" && second != "a" && second != "A" && second != "u" && second != "U"){
+		            badLetter = true;
+		            badNum.push((i * 3) + 2)
+		        }else if(third != "g" && third != "G" && third != "c" && third != "C" && third != "a" && third != "A" && third != "u" && third != "U"){
+		            badLetter = true
+		            badNum.push((i * 3) + 3)
+		        }else{
+    		              
+    		        if(first == "a" || first == "A"){
+    		            if(second == "a" || second == "A"){
+    		                if(third == "a" || third == "A"){
+    		                    letter = "K";
+    		                    word = "Lysine";
+    
+    		                }else if(third == "u" || third == "U"){
+    		                    letter = "N";
+    		                    word = "Asparagine"
+    		                }else if(third == "c" || third == "C"){
+    		                    letter = "N";
+    		                    word = "Asparagine"
+    		                }else if(third == "g" || third == "G"){
+    		                    letter = "K";
+    		                    word = "Lysine";
+    		                }else{
+    		                    
+    		                }
+    		            }else if(second == "U" || second == "u"){
+    		                if(third == "G" || third == "g"){
+    		                    letter = "M";
+    		                    word = "Methionine"
+    		                }else{
+    		                    letter = "I";
+    		                    word = "Isoleucine";
+    		                }
+    		            }else if(second == "c" || second == "C"){
+    		                letter = "T";
+    		                word = "Threonine";
+    		            }else if(second == "G" || second == "g"){
+    		                if(third == "a" || third == "A"){
+    		                    letter = "R";
+    		                    word = "Arginine";
+    
+    		                }else if(third == "u" || third == "U"){
+    		                    letter = "S";
+    		                    word = "Serine"
+    		                }else if(third == "c" || third == "C"){
+    		                    letter = "S";
+    		                    word = "Serine";
+    		                }else if(third == "g" || third == "G"){
+    		                    letter = "R";
+    		                    word = "Arginine";
+    		                }else{
+    		                    
+    		                }
+    		            }else{
+    		                
+    		            }
+    		        }else if(first == "U" || first == "u"){
+    		            if(second == "a" || second == "A"){
+    		                
+    		              
+    		                if(third == "a" || third == "A"){
+    		                    letter = "stop";
+    		                    word = "stop";
+    		                }else if(third == "u" || third == "U"){
+    		                    letter = "Y";
+    		                    word = "Tyrosine"
+    		                }else if(third == "c" || third == "C"){
+    		                    letter = "Y";
+    		                    word = "Tyrosine"
+    		                }else if(third == "g" || third == "G"){
+    		                    letter = "stop";
+    		                    word = "stop";
+    		                }else{
+    		                    
+    		                }
+    		            }else if(second == "U" || second == "u"){
+    		                if(third == "a" || third == "A"){
+    		                    letter = "L";
+    		                    word = "Leucine";
+    		                }else if(third == "u" || third == "U"){
+    		                    letter = "F";
+    		                    word = "Phenylalanine"
+    		                }else if(third == "c" || third == "C"){
+    		                    letter = "F";
+    		                    word = "Phenylalanine"
+    		                }else if(third == "g" || third == "G"){
+    		                    letter = "L";
+    		                    word = "Leucine";
+    		                }else{
+    		                    
+    		                }
+    		            }else if(second == "c" || second == "C"){
+    		                letter = "S";
+    		                word = "Serine";
+    		            }else if(second == "G" || second == "g"){
+    		                if(third == "a" || third == "A"){
+    		                    letter = "stop";
+    		                    word = "stop";
+    
+    		                }else if(third == "u" || third == "U"){
+    		                    letter = "C";
+    		                    word = "Cysteine"
+    		                }else if(third == "c" || third == "C"){
+    		                    letter = "C";
+    		                    word = "Cysteine";
+    		                }else if(third == "g" || third == "G"){
+    		                    letter = "W";
+    		                    word = "Tryptophan";
+    		                }else{
+    		                    
+    		                }
+    		            }else{
+    		                
+    		            }
+    		        }else if(first == "c" || first == "C"){
+    		            if(second == "a" || second == "A"){
+    		                
+    		              
+    		                if(third == "a" || third == "A"){
+    		                    letter = "Q";
+    		                    word = "Glutamine";
+    		                }else if(third == "u" || third == "U"){
+    		                    letter = "H";
+    		                    word = "Histidine"
+    		                }else if(third == "c" || third == "C"){
+    		                    letter = "H";
+    		                    word = "Histidine"
+    		                }else if(third == "g" || third == "G"){
+    		                    letter = "Q";
+    		                    word = "Glutamine";
+    		                }else{
+    		                    
+    		                }
+    		            }else if(second == "U" || second == "u"){
+    		                letter = "L"
+    		                word = "Leucine"
+    		            }else if(second == "c" || second == "C"){
+    		                letter = "P";
+    		                word = "Proline";
+    		            }else if(second == "G" || second == "g"){
+    		                letter = "R";
+    		                word = "Arginine";
+    		            }else{
+    		                
+    		            }
+    		        }else if(first == "g" || first == "G"){
+    		            if(second == "a" || second == "A"){
+    		                
+    		              
+    		                if(third == "a" || third == "A"){
+    		                    letter = "E";
+    		                    word = "Glutamic Acid";
+    		                }else if(third == "u" || third == "U"){
+    		                    letter = "D";
+    		                    word = "Asparic Acid";
+    		                }else if(third == "c" || third == "C"){
+    		                    letter = "D";
+    		                    word = "Aspartic Acid"
+    		                }else if(third == "g" || third == "G"){
+    		                    letter = "E";
+    		                    word = "Glutamic Acid";
+    		                }else{
+    		                    
+    		                }
+    		            }else if(second == "U" || second == "u"){
+    		                letter = "V"
+    		                word = "Valine"
+    		            }else if(second == "c" || second == "C"){
+    		                letter = "A";
+    		                word = "Alanine";
+    		            }else if(second == "G" || second == "g"){
+    		                letter = "G";
+    		                word = "Glycine";
+    		            }else{
+    		                
+    		            }
+    		        }else{
+    		            
+    		        }
+		        }  
+
+                console.log(letter);
+		        letters = letters + letter;
+		        words.push(word);
+
+		    }
+		    
+		    if(badLetter == true){
+		        
+		        document.getElementById("errorBox").innerHTML = "bad letter at: " + badNum;
+		        document.getElementById("This is for RNA codes, if the code is DNA, make sure to convert it.");
+		        document.getElementById("letterText").innerHTML = "";
+		        document.getElementById("wordText").innerHTML = "";
+		        document.getElementById("codonText").innerHTML = "";
+		        
+		    }else{
+
+                document.getElementById("letterText2").style = "display:initial";
+		        document.getElementById("wordText2").style = "display:initial";
+		        document.getElementById("codonText2").style = "display:initial";
+	    	    document.getElementById("letterText2").innerHTML = "original: " + letters;
+		        document.getElementById("wordText2").innerHTML = "original: " + words;
+		        document.getElementById("codonText2").innerHTML = "original: " + codons;
+		    }
+		    
+		}
+		
+		function deleteCodon(){
+		    var message = document.getElementById("input").value;
+            
+            var message = document.getElementById("input").value;
+		        message = message.replace(/,/g, "");
+		   if(message.length % 3 != 0){
+		    document.getElementById("errorBox").innerHTML = "not divisible by three"
+		    document.getElementById("upper").innerHTML = "Your code, not including commas, must be divisible by 3"
+		  }else{
+		    
+		    var pos = Math.floor(Math.random() * message.length);
+            console.log(pos);
+		    var first = message.slice(0, pos)
+		    var second = message.slice(pos + 1, message.length);
+		    var num = Math.floor(Math.random() * 4);
+		    var letter;
+		    var origin = message.charAt(pos);
+		    if(num == 0 && origin != "A" && origin != "a"){
+		        letter = "A"
+		    }else if(num == 1 && origin != "U" && origin != "u"){
+		        letter = "U"
+		    }else if(num == 2 && origin != "U" && origin != "u"){
+		        letter = "G"
+		    }else if(num == 3 || origin != "C"){
+		        letter = "C"
+		    }else{
+		        letter = "A"
+		    }
+		    console.log(num);
+		    var newMessage = first + second +letter;
+		    console.log(newMessage);
+		    
+		    var newCodons;
+		    
+		    newCodons = [];
+		            
+		            
+		            
+	            for(var i = 0; i < newMessage.length / 3; i++){
+	                
+	                var newCodon = "";
+	                var group = i * 3;
+	                
+	                
+	                newCodon = newCodon + newMessage.charAt(group);
+	                newCodon = newCodon + newMessage.charAt(group + 1);
+	                newCodon = newCodon + newMessage.charAt(group + 2);
+	                
+	                newCodons.push(newCodon);
+	                
+	            }
+	            
+	            var orgCodons;
+		    orgCodons = [];
+	            for(var i = 0; i < message.length / 3; i++){
+	                
+	                var newCodon = "";
+	                var group = i * 3;
+	                
+	                
+	                newCodon = newCodon + message.charAt(group);
+	                newCodon = newCodon + message.charAt(group + 1);
+	                newCodon = newCodon + message.charAt(group + 2);
+	                
+	                orgCodons.push(newCodon);
+	                
+	            }
+	            examine(newCodons, "sub", orgCodons);
+		  }
+		}
+		
+		
+		function insertCodon(){
+		    var message = document.getElementById("input").value;
+            
+            var message = document.getElementById("input").value;
+		        message = message.replace(/,/g, "");
+		   if(message.length % 3 != 0){
+		    document.getElementById("errorBox").innerHTML = "not divisible by three"
+		    document.getElementById("upper").innerHTML = "Your code, not including commas, must be divisible by 3"
+		  }else{
+		    
+		    var pos = Math.floor(Math.random() * message.length);
+            console.log(pos);
+		    var first = message.slice(0, pos)
+		    var second = message.slice(pos, message.length);
+		    var num = Math.floor(Math.random() * 4);
+		    var letter;
+		    var origin = message.charAt(pos);
+		    if(num == 0 && origin != "A" && origin != "a"){
+		        letter = "A"
+		    }else if(num == 1 && origin != "U" && origin != "u"){
+		        letter = "U"
+		    }else if(num == 2 && origin != "U" && origin != "u"){
+		        letter = "G"
+		    }else if(num == 3 || origin != "C"){
+		        letter = "C"
+		    }else{
+		        letter = "A"
+		    }
+		    console.log(num);
+		    
+		    second = second.slice(0, second.length - 1);
+		    console.log(second);
+		    var newMessage = first + letter + second;
+		    console.log(newMessage);
+		    
+		    var newCodons;
+		    
+		    newCodons = [];
+		            
+		            
+		            
+	            for(var i = 0; i < newMessage.length / 3; i++){
+	                
+	                var newCodon = "";
+	                var group = i * 3;
+	                
+	                
+	                newCodon = newCodon + newMessage.charAt(group);
+	                newCodon = newCodon + newMessage.charAt(group + 1);
+	                newCodon = newCodon + newMessage.charAt(group + 2);
+	                
+	                newCodons.push(newCodon);
+	                
+	            }
+	            
+	            var orgCodons;
+		    orgCodons = [];
+	            for(var i = 0; i < message.length / 3; i++){
+	                
+	                var newCodon = "";
+	                var group = i * 3;
+	                
+	                
+	                newCodon = newCodon + message.charAt(group);
+	                newCodon = newCodon + message.charAt(group + 1);
+	                newCodon = newCodon + message.charAt(group + 2);
+	                
+	                orgCodons.push(newCodon);
+	                
+	            }
+	            examine(newCodons, "sub", orgCodons);
+		  }
+		}
+		</script>
+	</body>
+</html>
