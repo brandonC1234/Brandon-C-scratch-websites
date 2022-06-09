@@ -22,12 +22,10 @@ The program chooses a random word between 5 and 9 letters and plays a wordle rou
 7. **If there is two of the same letter, the colorings will be incorrect** (This will be fixed in the future)
 8. Continue entering new guesses until you get the correct word or run out of tries
 9. Click the start button to start another round
-
-The word is logged in the console at the beginning of the round if you want to cheat
-
+    1. The word is logged in the console at the beginning of the round if you want to cheat
 ## Recreation Instructions
 1. Because this code utilizes pubnub to communicate between devices, you must go to their website and use your own pubnub ID
-  a. labeled "Personal pubnub keys" in example code
+    1. labeled "Personal pubnub keys" in example code
 ## Special aspects
 1. All CSS stylings are based on percentages, so everything should scale with window
 2. All text in the keys and boxes should scale and be perfectly centered, which is much easier said than done.
