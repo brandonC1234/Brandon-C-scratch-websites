@@ -16,12 +16,12 @@ This is an unfinished mutliplayer drawing website like skribbl.io, but I intende
 #### Other players
 1. Open the website and enter you username when prompted
 2. Once person starts drawing, start entering guesses into the chat
-  a. If the guess is right, a message will appear
+    1. If the guess is right, a message will appear
 
 ##### This concludes all the features at the moment, but a complete game loop will be completed later
 
 ## Recreation Instructions
 1. Because this code utilizes pubnub to communicate between devices, you must go to their website and use your own pubnub ID
-  a. labeled "Personal pubnub keys" in example code
+    1. labeled "Personal pubnub keys" in example code
 ## Special aspects
 1. Since there is no server side feature, everything is managed by the client computers, which made the code significantly more complicated to make
