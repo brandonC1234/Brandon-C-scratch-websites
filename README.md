@@ -13,6 +13,7 @@ Every folder will be a different website
 - AP Literature Project (949 lines)
 - Drawing Website (508 lines)
 - Helicopter game (687 lines)
+- RNA decoder and encoder (1162 lines)
 - Piano Chord Game (839 lines)
 - Math Survey (~390 lines)
 - Loan Calculator (155 lines)
