@@ -12,21 +12,16 @@ This is a website that I made for a project in AP Literature where we create a v
 1. Click the boxes above the canvas to load the different POVs
 2. This will create a circle that goes left and right over the man
 3. Depending on the POV, the man will be colored differently when it passes over him.
-  
-  a. This will correspond to the color legend on the right
+    1. This will correspond to the color legend on the right
 4. Click the + and - buttons to increase and decrease the circle size
 5. Click stop simulation to stop the animation
 
 #### Custom mode
 1. Click the boxes above the canvas to load the different POVs
 2. This will create a circle that can be dragged to anywhere on the canvas
-  
-  a. you can spawn mutliple circles at once in this mode
-
+    1. you can spawn mutliple circles at once in this mode
 3. Depending on the POV, the man will be colored differently when it is over him.
-  
-  a. This will correspond to the color legend on the right
-
+    1. This will correspond to the color legend on the right
 4. Click the + and - buttons to increase and decrease the circle size
 5. Click stop simulation to stop the animation
 
