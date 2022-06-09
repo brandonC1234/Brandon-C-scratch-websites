@@ -1,5 +1,5 @@
 ## Overview
-This is a website I made for problem 2 in the 2020 Great Computer Challenge
+This is a website I made for problem 2 in the 2021 Great Computer Challenge
 
 #### codehs link: https://codehs.com/editor/html/4220431/505083/index.html
 
