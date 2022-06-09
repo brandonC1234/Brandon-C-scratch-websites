@@ -11,7 +11,7 @@ This a Javascript game built with the codehs.com Javascript graphics API. **This
 5. try to get the colorful extra points ball
 6. avoid the red ball that appears in level 4
 7. After you achieve certain score thresholds, the level will increase and the scene will change.
-  a. The scenes go from afternoon to night to morning to mid day
+    1. The scenes go from afternoon to night to morning to mid day
 
 ## Recreation Instructions
 1. Look into how to utilize the codehs Javascript graphics API
