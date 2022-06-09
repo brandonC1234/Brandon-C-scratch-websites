@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	    <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="icon" type="image/png" href="icon.png">
+        <meta name="description" content="Platform game for introduction to AP Literature">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+		<title>AP Lit Intro Game</title>
+		<style>
+		    html {
+		        margin: 0px;
+		        border: 0px;
+		        
+		        height: 100%;
+		    }
+		    body {
+		        margin: 0px;
+		        border: 0px;
+		        
+		        height: 100%;
+		    }
+		    header {
+                background-color: white;
+                text-align: center;
+                font-size: 25px;
+                color: black;
+                border-bottom-left-radius: 15px;
+                border-bottom-right-radius: 15px;
+                border-top-left-radius: 15px;
+                border-top-right-radius: 15px;
+            }
+
+            .legend {
+                float: left;
+                width: 250px;
+                height: 600px;
+            }
+            .legend_box {
+                width: 250px;
+                height: 30px;
+            }
+            .legend_title {
+                font-size: 20px;
+                font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif
+                float:left;
+            }
+            .legend_circle {
+                height: 25px;
+                width: 25px;
+                border-radius: 50%;
+                border: 2px solid black;
+                float: left;
+                display: inline-block;
+            }
+            .legend_spacer {
+                height: 25px;
+                width: 30px;
+                float:left;
+            }
+            .mode_text {
+                height: 34px;
+                font-size: 30px;
+                font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif
+                text-align: left;
+                float:left;
+                padding: 0;
+                margin: 0;
+            }
+            .selection_container {
+                float: left;
+                
+                height: 100%;
+            }
+            .selection_box {
+                border-bottom-left-radius: 5px;
+                border-bottom-right-radius: 5px;
+                border-top-left-radius: 5px;
+                border-top-right-radius: 5px;
+                
+                width: 90%;
+                height: 100%;
+                
+                border: solid;
+                border-color: black;
+                border-width: thin;
+                
+                margin: 0 auto;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                
+                font-size: 1vw;
+                font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+            }
+            .instructions {
+                height: 25px;
+                font-size: 20px;
+                font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif
+                text-align: left;
+                float: left;
+                margin: 0px;
+            }
+            .key {
+                border-bottom-left-radius: 5px;
+                border-bottom-right-radius: 5px;
+                border-top-left-radius: 5px;
+                border-top-right-radius: 5px;
+                
+                width: 90%;
+                height: 90%;
+                
+                display: block;
+                margin: 0 auto;
+                
+                font-size: 1vw;
+                font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+            }
+		</style>
+	</head>
+
+	<body style="height:100%">
+	    <div style="height:1%; width:100%"></div>
+	    <header style="height:5%">
+	        <h2 id="upper" style="font-family:arial; margin:0px; font-size: 2vw" >Welcome to the AP Lit intro game</h2>
+	    </header>
+	    
+        <div style="height:3%; width:100%"></div>
+        <div style = "text-align:center;">
+            <canvas onclick="click_stuff(event)" id="myCanvas" width="1200px" height="800px" style="border:1px solid #d3d3d3"></canvas>
+        </div>
+        <script>
+            //onmousedown="startMove(event)" onmouseup="stopMove(event)" onmousemove="move(event)"
+            
+            var window_height = null;
+            var window_width = null;
+            
+            var canvas_height = null;
+            var canvas_width = null;
+            
+            console.log(window_width, window_height)
+
+            var game_timer = null
+            
+            var c = document.getElementById("myCanvas");
+            var rect = c.getBoundingClientRect();
+            var xOff = rect.left;
+            var yOff = rect.top;
+            
+            var ctx = c.getContext("2d");
+            ctx.font = "30px Arial";
+            
+            var FPS = 30;
+            var playing = false;
+            var menu = true;
+            var current_level = 0;
+            var current_screen = 0;
+            
+            var level_options = [];
+            var levels = [];
+            var player = null;
+            
+            var touching_ground = false;
+            var moving = "none"
+            var jumping = true;
+            var space = false;
+            var default_jump_dy = 6
+            var jump_dy = 6;
+            var gravity = 0.5;
+            var move_sideways = 0.5;
+            var max_sideways = 3
+            
+            var dialogue = true
+            var intro = true
+            var current_dialogue = 0
+            var current_message = 0
+            var clicked = false;
+            
+            var collected_things = 0;
+            var fire_activated = false;
+            var halo_activated = false;
+            
+            var first_level_dialogue = false;
+            var first_d_counter = 0;
+            
+            var second_level_dialogue = false
+            var second_d_counter = 0;
+            
+            var collected_mushrooms = 0;
+            var third_level_dialogue = false;
+            var third_d_counter = 0;
+            
+            var fourth_level_dialogue = false;
+            var fourth_d_counter = 0;
+            
+            var animations = false;
+            var running = false;
+            var change_wait;
+            
+            var completed_labels = ["Imagery", "Symbolism", "Setting"]
+            var completed = [false, false, false]
+            var require_previous = false;
+            
+            var text_height_goal = 2.3
+            var text_px = null
+            var text_px_string = null
+            
+            var symbolism_px = null
+            
+            function reset_level(level_num){
+                collected_things = 0;
+                fire_activated = false;
+                halo_activated = false;
+                
+                collected_mushrooms = 0;
+                
+                levels[level_num - 1].reset();
+                
+            }
+            
+            function set_canvas(){
+                window_height = $(window).height();
+                window_width = $(window).width();
+            
+                var aspect = 1920/1080
+                var adjusted_height = window_height * (1 - 0.1)
+                var adjusted_width = window_width * 0.90;
+
+                var current_aspect = adjusted_width / adjusted_height
+                if(current_aspect < aspect){
+                    canvas_width = Math.round(adjusted_width)
+                    canvas_height = Math.round(adjusted_width / (aspect))
+                    //console.log("first", canvas_width, canvas_height)
+                }else{
+                    canvas_height = Math.round(adjusted_height)
+                    canvas_width = Math.round(adjusted_height * aspect)
+                    //console.log("second", canvas_width, canvas_height)
+                }
+                ctx.canvas.width = canvas_width
+                ctx.canvas.height = canvas_height
+                
+                //calculate dialogue font size
+                
+                found = false
+                test_string = "A"
+                for(var i = 100; i > 0; i--){
+                    ctx.font = i.toString() + "px  Arial"
+                    var metrics = ctx.measureText(test_string);
+                    var actualHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent
+                    if(actualHeight <= (text_height_goal/100) * canvas_height && found == false){
+                        //console.log("actual height", actualHeight, "text size:", i)
+                        found = true
+                        text_px = i
+                        text_px_string = i.toString() + "px Arial"
+                        break;
+                    }else{
+                        //console.log("height: ", ctx.measureText(test_string).height)
+                    }
+                }
+                if(found == false){
+                    console.log("Could not find adequate font size")
+                }
+                
+                for(var i = 0; i < level_options.length; i++){
+                    level_options[i].get_text_things();
+                }
+                for(var i = 0; i < level_options.length; i++){
+                    if(level_options[i].name != "Symbolism" && level_options[i].name != "Final"){
+                        level_options[i].get_text_things();
+                    }
+                }
+                
+            }
+            
+            class level{
+                constructor(color, level_num, screens_info){
+                    console.log("Why?", screens_info[0][0])
+                    this.bColor = color
+                    this.screens = []
+                    for(var i = 0; i < screens_info.length; i++){
+                        var curr_screen = new screen(screens_info[i][0], screens_info[i][1])
+                        this.screens.push(curr_screen)
+                    }
+                    this.num_screens = this.screens.length
+                    console.log("SCREENS:", this.screens)
+                }
+                draw(screen_num){
+                    ctx.fillStyle = this.bColor
+                    ctx.fillRect(0, 0, canvas_width, canvas_height)
+                    this.screens[screen_num].draw()
+                }
+                check_boxes(screen_num){
+                    this.screens[screen_num].check_touch()
+                }
+                check_things(screen_num){
+                    this.screens[screen_num].check_things()
+                }
+                reset(){
+                    for(var i = 0; i < this.screens.length; i++){
+                        this.screens[i].reset();
+                    }
+                }
+            }
+            
+            class screen{
+                constructor (boxes_info, things_info){
+                    console.log("B_ifo:", boxes_info)
+                    this.num_boxes = boxes_info.length
+                    this.boxes = []
+                    for(var i = 0; i < boxes_info.length; i++){
+                        console.log("current box: ", boxes_info[i][0], boxes_info[i][1], boxes_info[i][2], boxes_info[i][3], boxes_info[i][4])
+                        var current_box = new box(boxes_info[i][0], boxes_info[i][1], boxes_info[i][2], boxes_info[i][3], boxes_info[i][4])
+                        this.boxes.push(current_box)
+                    }
+                    this.things = []
+                    for(var i = 0; i < things_info.length; i++){
+                        console.log("current thing: ", things_info[i][0], things_info[i][1], things_info[i][2], things_info[i][3], things_info[i][4], things_info[i][5])
+                        var current_thing = new thing(things_info[i][0], things_info[i][1], things_info[i][2], things_info[i][3], things_info[i][4], things_info[i][5])
+                        this.things.push(current_thing)
+                    }
+                    console.log("THNGS:", this.things)
+                }
+                draw(){
+                    //draw boxes
+                    //console.log("Drawing boxes", this.boxes)
+                    for(var i = 0; i < this.boxes.length; i++){
+                        this.boxes[i].draw()
+                    }
+                    //draw things
+                    for(var i = 0; i < this.things.length; i++){
+                        this.things[i].draw()
+                    }
+                }
+                check_touch(){
+                    for(var i = 0; i < this.boxes.length; i++){
+                        this.boxes[i].touching()
+                    }
+                }
+                check_things(){
+                    for(var i = 0; i < this.things.length; i++){
+                        this.things[i].touching()
+                    }
+                }
+                reset(){
+                    for(var i = 0; i < this.things.length; i++){
+                        this.things[i].collected = false;
+                    }
+                }
+            }
+            
+            class box{
+                constructor (color, x, y, width, height){
+                    this.color = color
+                    this.x = x
+                    this.y = y
+                    this.width = width
+                    this.height = height
+                }
+                draw(){
+                    ctx.fillStyle = this.color
+                    ctx.fillRect((this.x/100) * canvas_width, (this.y/100) * canvas_height, (this.width / 100) * canvas_width, (this.height/ 100) * canvas_height);
+                }
+                touching(){
+                    if(player.x + player.width >= this.x && player.x <= this.x + this.width){
+                        if(player.y + player.height >= this.y && player.y <= this.y + this.height){
+                            var hit = null
+                            var p_y = player.y
+                            var p_x = player.x
+                            if(p_y < this.y && p_y + player.height > this.y + this.height){
+                                hit = "vertical"
+                            }else if(this.x < p_x & this.x + this.width > p_x + player.width){
+                                hit = "horizontal"
+                            }else{
+                                var x_adjust = null
+                                if(player.x < this.x){
+                                    x_adjust = (player.x + player.width) - this.x
+                                }else{
+                                    x_adjust = (this.x + this.width) - player.x
+                                }
+                                var y_adjust = null
+                                if(player.y < this.y){
+                                    y_adjust = (player.y + player.height) - this.y
+                                }else{
+                                    y_adjust = (this.y + this.height) - player.y
+                                }
+                                
+                                if(x_adjust < y_adjust){
+                                    hit = "vertical"
+                                }else{
+                                    hit = "horizontal"
+                                }
+                            }
+                            
+                            //console.log("hit:", hit)
+                            
+                            if(hit == "vertical"){
+                                console.log("hit:", hit)
+                                player.dx = player.dx * -1
+                                if(player.x < this.x){
+                                    player.x = this.x - player.width
+                                }else{
+                                    player.x = this.x + this.width
+                                }
+                            }else if(hit == "horizontal"){
+                                if(player.y < this.y){ //player above
+                                    player.dy = 0;
+                                    player.y = (this.y - player.height)
+                                    touching_ground = true;
+                                }else{ //player below
+                                    player.y = (this.y + this.height)
+                                    player.dy = player.dy * -1
+                                }
+                            }else{
+                                console.log("Error in colision determing")
+                            }
+                        }
+                    }
+                }
+            }
+            
+            class thing{
+                constructor(x, y, width, height, source, action){
+                    this.x = x
+                    this.y = y
+                    this.width = width
+                    this.height = height
+                    
+                    this.image = new Image()
+                    this.image.src = source
+                    this.image.crossOrigin = "Anonymous"
+                    
+                    this.collected = false;
+                    this.action = action
+                }
+                draw(){
+                    //console.log("why?")
+                    if(this.action == "angel"){
+                        if(halo_activated == true){
+                            ctx.drawImage(this.image, (this.x / 100) * canvas_width, (this.y / 100) * canvas_height, (this.width / 100) * canvas_width, (this.height / 100) * canvas_height)
+                        }
+                    }else if(this.action == "demon"){
+                        if(fire_activated == true){
+                            ctx.drawImage(this.image, (this.x / 100) * canvas_width, (this.y / 100) * canvas_height, (this.width / 100) * canvas_width, (this.height / 100) * canvas_height)
+                        }
+                    }else if(this.action == "tree"){
+                        if(player.x < 33){
+                            this.image.src = tree_links[0]
+                        }else if(player.x < 66){
+                            this.image.src = tree_links[1]
+                        }else{
+                            this.image.src = tree_links[2]
+                        }
+                        ctx.drawImage(this.image, (this.x / 100) * canvas_width, (this.y / 100) * canvas_height, (this.width / 100) * canvas_width, (this.height / 100) * canvas_height)
+                    }else{
+                        if(this.collected == false){
+                            ctx.drawImage(this.image, (this.x / 100) * canvas_width, (this.y / 100) * canvas_height, (this.width / 100) * canvas_width, (this.height / 100) * canvas_height)
+                        }
+                    }
+                }
+                touching(){
+                    if(player.x + player.width >= this.x && player.x <= this.x + this.width){
+                        if(player.y + player.height >= this.y && player.y <= this.y + this.height){
+                            if(this.action == "collect" && this.collected == false){
+                                this.collected = true;
+                                collected_things += 1;
+                            }else if(this.action == "kill"){
+                                respawn();
+                            }else if(this.action == "restart"){
+                                reset();
+                            }else if(this.action == "win"){
+                                finish_level()
+                            }else if(this.action == "devil"){
+                                fire_activated = true;
+                            }else if(this.action == "demon" && fire_activated == true){
+                                reset();
+                            }else if(this.action == "halo"){
+                                halo_activated = true
+                            }else if(this.action == "angel" && halo_activated == true){
+                                finish_level();
+                            }else if(this.action == "mushroom" && this.collected == false){
+                                this.collected = true
+                                collected_mushrooms += 1
+                                jump_dy += (1 * collected_mushrooms)
+                                player.width *= 2
+                                player.height *= 2
+                            }else if(this.action == "book" && this.collected == false){
+                                this.collected = false
+                                finish_level();
+                            }else if(this.action == "next"){
+                                player.x = 5;
+                                player.y = 60
+                                current_screen += 1
+                            }
+                        }
+                    }
+                }
+            }
+            
+            var level1_screens = [[ [["#26C02C", 0, 90, 25, 10],["#26C02C", 50, 90, 25, 10], ["#26C02C", 90, 90, 10, 10], ["#2688C0", 20, 60, 20, 10], ["#2688C0", 0, 30, 15, 10],["#2688C0", 60, 35, 20, 10]] , [[2, 20, 5, 10, "https://codehs.com/uploads/f0061da4bae7fa55dee429c11fb77543", "collect"]] ], 
+                                  [ [["#26C02C", 0, 90, 30, 10],["#26C02C", 80, 90, 20, 10],["#2688C0", 30, 50, 20, 10], ["#ff0000", 40, 90, 30, 10]] , [[40, 85, 30, 10, "", "kill"]] ],
+                                  [ [["#26C02C", 0, 90, 100, 10],["#964B00", 40, 45, 10, 25],["#964B00", 40, 0, 10, 20],["#964B00", 50, 45, 50, 10],["#2688C0", 20, 55, 20, 10]] , [[75, 75, 40, 20, "https://codehs.com/uploads/05b586e5837b063eee313d7406042b68", "devil"], [45, 60, 20, 40, "https://codehs.com/uploads/7a8cecea2c1f74a95b39681ca76887e3", "demon"], [85, 30, 15, 6, "https://codehs.com/uploads/d83c07a2d01f63dec8dc5a752ef89e04", "halo"], [55, 10, 15, 30, "https://codehs.com/uploads/400a2ca08f08e6daacab710e556ffbb6", "angel"]] ]
+                                 ]
+            level1 = new level("#00CCFF", 1, level1_screens)
+            levels.push(level1);
+            
+            var level2_screens = [[ [["#964B00", 0, 90, 100, 10], ["#964B00", 20, 60, 40, 5], ["#964B00", 70, 60, 30, 5]] , [[30, 10, 15, 20, "https://codehs.com/uploads/4d41b81533e474cbfef9959a26508eee", "kill"], [30, 75, 15, 15, "https://codehs.com/uploads/4ed1ec73c7ab4af5670709128cc0452f", "kill"], [80, 75, 15, 15, "https://codehs.com/uploads/05b586e5837b063eee313d7406042b68", "kill"], [80, 10, 15, 15, "https://codehs.com/uploads/56ed4c2780fa4e0eb127b9121683e99a", "next"]] ], 
+                                  [ [["#964B00", 0, 90, 100, 10], ["#964B00", 20, 60, 40, 5], ["#964B00", 70, 60, 30, 5]] , [[30, 10, 15, 20, "https://codehs.com/uploads/9b11fdebd56b910eea21ef2aa56ecac5", "kill"], [30, 75, 12, 15, "https://codehs.com/uploads/0954665f45f4abb8a1f0c31585c36d64", "kill"], [80, 10, 15, 15, "https://codehs.com/uploads/94cda291bd16b83e8c195240c7f9e333", "kill"], [80, 70, 15, 15, "https://codehs.com/uploads/f48da3e3838e5ecb6a661b025f3fe628", "next"]] ],
+                                  [ [["#964B00", 0, 90, 100, 10], ["#964B00", 20, 60, 40, 5], ["#964B00", 70, 60, 30, 5]] , [[30, 10, 15, 20, "https://codehs.com/uploads/c9e30a69b7b792817ef2a33dc1f96759", "kill"], [30, 75, 15, 15, "https://codehs.com/uploads/0ac58891c721af6f0f4f330e4f782174", "kill"], [80, 75, 15, 15, "https://codehs.com/uploads/072b10b2215d720aaac3f61e965031f8", "kill"], [80, 10, 15, 15, "https://codehs.com/uploads/6eda1d8e51fa2aaff0a8f942f6435c67", "win"]] ]
+                                 ]
+            level2 = new level("#87cefa", 2, level2_screens)
+            levels.push(level2)
+            
+            var tree_links = ["https://codehs.com/uploads/69b05370e5ee37ba4f8401e99a3ebc84", "https://codehs.com/uploads/291970afc29f81e10a3c407cfab4d44c", "https://codehs.com/uploads/e5fb3856fb25414945525b68a1aaf5e9"]
+            var level3_screens = [[ [["#6ba6f9", 0, 90, 100, 10],["#6ba6f9", 95, 40, 5, 60], ["#6ba6f9", 0, 60, 20, 10]] , [[87, 87, 3, 3, "https://codehs.com/uploads/289a08f044dcb860b5afa759fbdd0b13", "mushroom"], [50, 65, 3, 3, "https://codehs.com/uploads/289a08f044dcb860b5afa759fbdd0b13", "mushroom"], [10, 57, 3, 3, "https://codehs.com/uploads/289a08f044dcb860b5afa759fbdd0b13", "mushroom"], [0, 90, 10, 10, "https://codehs.com/uploads/2eff47f841813e82ea5a65fbad337408", "art"], [10, 90, 10, 10, "https://codehs.com/uploads/f5076fa3b99da3f0c3c040d1d06278aa", "art"], [20, 90, 10, 10, "https://codehs.com/uploads/f5076fa3b99da3f0c3c040d1d06278aa", "art"], [30, 90, 10, 10, "https://codehs.com/uploads/f5076fa3b99da3f0c3c040d1d06278aa", "art"], [40, 90, 10, 10, "https://codehs.com/uploads/f5076fa3b99da3f0c3c040d1d06278aa", "art"], [50, 90, 10, 10, "https://codehs.com/uploads/f5076fa3b99da3f0c3c040d1d06278aa", "art"], [60, 90, 10, 10, "https://codehs.com/uploads/f5076fa3b99da3f0c3c040d1d06278aa", "art"], [70, 90, 10, 10, "https://codehs.com/uploads/f5076fa3b99da3f0c3c040d1d06278aa", "art"], [80, 90, 10, 10, "https://codehs.com/uploads/f5076fa3b99da3f0c3c040d1d06278aa", "art"], [90, 90, 10, 10, "https://codehs.com/uploads/9e76a56d080d04187e4ea3437029ffc3", "art"],[90, 80, 10, 10, "https://codehs.com/uploads/bb612a6d0eb54cea45d05fd5de98c190", "art"],[90, 70, 10, 10, "https://codehs.com/uploads/bb612a6d0eb54cea45d05fd5de98c190", "art"],[90, 60, 10, 10, "https://codehs.com/uploads/bb612a6d0eb54cea45d05fd5de98c190", "art"],[90, 50, 10, 10, "https://codehs.com/uploads/bb612a6d0eb54cea45d05fd5de98c190", "art"],[90, 40, 10, 10, "https://codehs.com/uploads/2eff47f841813e82ea5a65fbad337408", "art"], [0,60,10,10,"https://codehs.com/uploads/2eff47f841813e82ea5a65fbad337408"], [10,60,10,10,"https://codehs.com/uploads/cbdc09776c2c837c024f31b69a09c751"]] ], 
+                                  [ [["#6ba6f9", 0, 90, 100, 10]], [[0, 90, 10, 10, "https://codehs.com/uploads/78524c34b1a0e8cdc1c021fd9b72e352", "art"], [10, 90, 10, 10, "https://codehs.com/uploads/d1242c8038ef1cec6b3973bb1e341ae2", "art"], [20, 90, 10, 10, "https://codehs.com/uploads/d1242c8038ef1cec6b3973bb1e341ae2", "art"], [30, 90, 10, 10, "https://codehs.com/uploads/d1242c8038ef1cec6b3973bb1e341ae2", "art"], [40, 90, 10, 10, "https://codehs.com/uploads/d1242c8038ef1cec6b3973bb1e341ae2", "art"], [50, 90, 10, 10, "https://codehs.com/uploads/d1242c8038ef1cec6b3973bb1e341ae2", "art"], [60, 90, 10, 10, "https://codehs.com/uploads/d1242c8038ef1cec6b3973bb1e341ae2", "art"], [70, 90, 10, 10, "https://codehs.com/uploads/d1242c8038ef1cec6b3973bb1e341ae2", "art"], [80, 90, 10, 10, "https://codehs.com/uploads/d1242c8038ef1cec6b3973bb1e341ae2", "art"], [90, 90, 10, 10, "https://codehs.com/uploads/de2541a6f38da4800fa29b21c101188a", "art"], [10, 40, 20, 50, "https://codehs.com/uploads/69b05370e5ee37ba4f8401e99a3ebc84", "tree"], [40, 40, 20, 50, "https://codehs.com/uploads/69b05370e5ee37ba4f8401e99a3ebc84", "tree"], [70, 40, 20, 50, "https://codehs.com/uploads/69b05370e5ee37ba4f8401e99a3ebc84", "tree"]] ],
+                                  [ [["#6ba6f9", 0, 90, 50, 10],["#6ba6f9", 80, 90, 20, 10],["#6ba6f9", 30, 50, 30, 10]] , [[0, 90, 10, 10, "https://codehs.com/uploads/00953740f869eb6de508e8179990c736", "art"], [10, 90, 10, 10, "https://codehs.com/uploads/3ccbdbff6d671533cff59efcb3520547", "art"], [20, 90, 10, 10, "https://codehs.com/uploads/3ccbdbff6d671533cff59efcb3520547", "art"], [30, 90, 10, 10, "https://codehs.com/uploads/3ccbdbff6d671533cff59efcb3520547", "art"], [40, 90, 10, 10, "https://codehs.com/uploads/e2484df3a6bffc693125051a9adfb8e3", "art"], [30, 50, 10, 10, "https://codehs.com/uploads/00953740f869eb6de508e8179990c736", "art"], [40, 50, 10, 10, "https://codehs.com/uploads/3ccbdbff6d671533cff59efcb3520547", "art"], [50, 50, 10, 10,"https://codehs.com/uploads/e2484df3a6bffc693125051a9adfb8e3", "art"],[80, 90, 10, 10, "https://codehs.com/uploads/00953740f869eb6de508e8179990c736", "art"], [90, 90, 10, 10, "https://codehs.com/uploads/e2484df3a6bffc693125051a9adfb8e3", "art"], [10, 90, 10, 10, "https://codehs.com/uploads/6a24f11d4d3bc7ecd92d729053e512ac", "art"], [30, 90, 10, 10, "https://codehs.com/uploads/df9f0325ee25bb4084a56b8302360b96", "art"], [40, 50, 10, 10,"https://codehs.com/uploads/df9f0325ee25bb4084a56b8302360b96", "art"], [10, 60, 25, 30, "https://codehs.com/uploads/22d357177a7ee51fb559d6b5ffe770bd", "art"], [85, 80, 7, 10, "https://codehs.com/uploads/3f9ff3b126c4f6e0fe66c0d01d404ad7", "art"]] ]
+                                 ]
+            level3 = new level("#6ba6f9", 3, level3_screens)
+            levels.push(level3)
+            
+            var level4_screens = [[ [["#964B00", 0, 90, 100, 10], ["#964B00", 20, 40, 60, 8]] , [[30, 30, 8, 10, "https://codehs.com/uploads/2affc1442c458d3e32a4fc5652edf60e", "collect"],[40, 30, 8, 10, "https://codehs.com/uploads/2affc1442c458d3e32a4fc5652edf60e", "collect"],[50, 30, 8, 10, "https://codehs.com/uploads/2affc1442c458d3e32a4fc5652edf60e", "collect"],[60, 30, 8, 10, "https://codehs.com/uploads/2affc1442c458d3e32a4fc5652edf60e", "collect"],[40, 30, 8, 10, "https://codehs.com/uploads/2affc1442c458d3e32a4fc5652edf60e", "collect"]] ], 
+                                  [ [["#964B00", 0, 90, 100, 10], ["#964B00", 50, 30, 30, 8]], [[60, 10, 20, 20, "https://codehs.com/uploads/7402d8a6d96b78d16748a4565a8b3f1c", "collect"]] ],
+                                  [ [["#964B00", 0, 90, 100, 10], ["#964B00", 40, 30, 50, 8]], [[79, 75, 19, 20, "https://codehs.com/uploads/56d6785acf3bbb87922ddcfe4081c085", "book"], [45, 20, 8, 10, "https://codehs.com/uploads/ac57b2b57a37c96ec0ab35846e0ecc95", "collect"], [55, 20, 8, 10, "https://codehs.com/uploads/ac57b2b57a37c96ec0ab35846e0ecc95", "collect"], [65, 20, 8, 10, "https://codehs.com/uploads/ac57b2b57a37c96ec0ab35846e0ecc95", "collect"], [75, 20, 8, 10, "https://codehs.com/uploads/ac57b2b57a37c96ec0ab35846e0ecc95", "collect"]] ]
+                                 ]
+            var level4 = new level("#d7e8fd", 4, level4_screens)
+            levels.push(level4)
+            
+            function draw_background(){
+                levels[current_level - 1].draw(current_screen);
+                
+                //ctx.fillStyle = "rgb(0, 216, 230)";
+                //ctx.fillRect(0, 0, canvas_width, canvas_height);
+            }
+            
+            class level_option{
+                constructor(xp, yp, width, height, level_num, name, color){
+                    this.x = xp
+                    this.y = yp
+                    this.width = width
+                    this.height = height
+                    this.num = level_num
+                    this.name = name
+                    this.color = color
+                    
+                    this.px = null
+                    this.px_string = null
+                    
+                    this.xoff = null
+                    this.yoff = null
+                }
+                get_text_things(){
+                    if(this.name == "Symbolism" || this.name == "Final"){
+                        var found = false
+                        for(var i = 100; i > 0; i--){
+                            ctx.font = i.toString() + "px  Verdana"
+                            var metrics = ctx.measureText(this.name);
+                            var actualHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent
+                            if(actualHeight <= ((this.height * 0.9) / 100) * canvas_height && found == false){
+                                if(ctx.measureText(this.name).width <= ((this.width * 0.9) / 100) * canvas_width){
+                                    //console.log("actual height", actualHeight, "text size:", i)
+                                    found = true
+                                    this.px = i
+                                    if(this.name == "Symbolism"){
+                                        symbolism_px = i;
+                                    }
+                                    this.px_string = i.toString() + "px Verdana"
+                                    this.yoff = actualHeight / 2
+                                    break;
+                                }
+                            }else{
+                                //console.log("height: ", actualHeight)
+                            }
+                        }
+                        if(found == false){
+                            console.log("Could not find adequate font size for level option", this.name)
+                        }
+                        
+                        ctx.font = this.px_string
+                        var text_width = ctx.measureText(this.name).width;
+                        this.xoff = text_width / 2
+                    }else{
+                        if(symbolism_px != null){
+                            this.px = symbolism_px
+                            this.px_string = this.px.toString() + "px Verdana"
+                            
+                            ctx.font = this.px_string
+                            var metrics = ctx.measureText(this.name);
+                            var actualHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent
+                            this.yoff = actualHeight / 2
+                            var text_width = ctx.measureText(this.name).width;
+                            this.xoff = text_width / 2
+                        }
+                    }
+                }
+                getX(){
+                    return Math.ceil(this.x)
+                }
+                getY(){
+                    return Math.ceil(this.y)
+                }
+                draw(){
+                    //var c = document.getElementById("myCanvas");
+                    //var ctx = c.getContext("2d");
+                    ctx.fillStyle = this.color
+                    ctx.fillRect((this.x / 100) * canvas_width, (this.y / 100) * canvas_height, (this.width / 100) * canvas_width, (this.height / 100) * canvas_height);
+                    
+                    ctx.font = this.px_string
+                    ctx.fillStyle = "black"
+                    ctx.fillText(this.name, (this.x + this.width / 2) / 100 * canvas_width - this.xoff, (this.y + this.height / 2) / 100 * canvas_height + this.yoff);
+                }
+                check_touch(x, y){
+                    if(x > this.x && x < this.x + this.width){
+                        if(y > this.y && y <this.y + this.height){
+                            return true
+                        }else{
+                            return false
+                        }
+                    }else{
+                        return false
+                    }
+                }
+            }
+            function create_level_options(){
+                var num_levels = 4
+                
+                var level_1 = new level_option(10, 25, 20, 15, 1, "Imagery", "#ffff00")
+                var level_2 = new level_option(40, 25, 20, 15, 2, "Symbolism", "#00ff00")
+                var level_3 = new level_option(70, 25, 20, 15, 3, "Setting", "#ff00ff")
+                var level_4 = new level_option(35, 55, 30, 20, 4, "Final", "#ff00ff")
+                level_options = [level_1, level_2, level_3, level_4]
+                
+                for(var i = 0; i < level_options.length; i++){
+                    level_options[i].get_text_things()
+                }
+                for(var i = 0; i < level_options.length; i++){
+                    if(level_options[i].name != "Symbolism" && level_options[i].name != "Final"){
+                        level_options[i].get_text_things();
+                    }
+                }
+            }
+            create_level_options()
+            function draw_menu(){
+                ctx.fillStyle = "rgb(173, 216, 230)";
+                ctx.fillRect(0, 0, canvas_width, canvas_height);
+                
+                for(var i = 0; i < level_options.length; i++){
+                    level_options[i].draw();
+                }
+                
+            }
+
+            document.onkeydown = function(e){
+                e = e || window.event;
+                var key = e.which || e.keyCode;
+                //console.log(key)
+                if(key == 68){
+                    moving = "right"
+                }
+                if(key == 65){
+                    moving = "left"
+                }
+                if(key == 32){
+                    //console.log("start jump")
+                    space = true
+                }
+            }
+            document.onkeyup = function(e){
+                e = e || window.event;
+                var key = e.which || e.keyCode;
+                
+                if(key == 68){
+                    moving = "none"
+                }
+                if(key == 65){
+                    moving = "none"
+                }
+                if(key == 32){
+                    //console.log("end jump")
+                    space = false
+                }
+            }
+            
+            function game(){
+                if(window_height != $(window).height() || window_width != $(window).width()){
+                    set_canvas();
+                }
+                
+                canvas_height = c.height;
+                canvas_width = c.width;
+                
+                ctx.clearRect(0, 0, c.width, c.height);
+                
+                start = new Date()
+                
+                if(menu == true){
+                    draw_menu();
+                    
+                    if(dialogue == true){
+                        do_dialogue()
+                    }
+                }else{
+                    
+                    if(dialogue == true){
+                        draw_background()
+                        player.draw()
+                        do_dialogue()
+                    }else{
+                        //draw background
+                        draw_background();
+                        
+                        //move player
+                        move_player()
+                        
+                        //draw character
+                        player.draw()
+                    }
+                    
+                }
+                
+                finish = new Date()
+                
+                var fps = 1 / ((finish.getTime() - start.getTime()) / 1000)
+                //console.log(fps)
+                //document.getElementById("fps_text").innerHTML = fps_string
+            }
+            
+            
+            
+            game_timer = setInterval(game, 1000 / FPS)
+            //game()
+            class character{
+                constructor(xp, yp, width, height, name, source){
+                    this.x = xp
+                    this.y = yp
+                    this.dx = 0;
+                    this.dy = 0;
+                    this.width = width
+                    this.height = height
+                    this.name = name
+                    this.source = source
+                    
+                    if(name != "player"){
+                        this.image = new Image()
+                        this.image.src = source
+                        this.image.crossOrigin = "Anonymous"
+                    }else{
+                        this.idle = new Image()
+                        this.idle.src = "https://codehs.com/uploads/7040f5c730bcb10b80988bc03da212a4"
+                        this.idle.crossOrigin = "Anonymous"
+                        
+                        this.right_run = new Image()
+                        this.right_run.src = "https://codehs.com/uploads/1797374feceb1928f79bcbf111f1367d"
+                        this.right_run.crossOrigin = "Anonymous"
+                        
+                        this.left_run = new Image()
+                        this.left_run.src = "https://codehs.com/uploads/e6ea17fcf4355c58ac93ea8e3a13d863"
+                        this.left_run.crossOrigin = "Anonymous"
+                        
+                        this.right_jump = new Image()
+                        this.right_jump.src = "https://codehs.com/uploads/04524427ecb7434af68139460e9b4676"
+                        this.right_jump.crossOrigin = "Anonymous"
+                        
+                        this.left_jump = new Image()
+                        this.left_jump.src = "https://codehs.com/uploads/7635c85641e85b20c99930684cf62aed"
+                        this.left_jump.crossOrigin = "Anonymous"
+                        
+                    }
+                    
+                    var text_width = ctx.measureText(name).width;
+                    this.xoff = text_width / 2
+                    this.yoff = 8 / 2
+                }
+                getX(){
+                    return Math.ceil(this.x)
+                }
+                getY(){
+                    return Math.ceil(this.y)
+                }
+                setXY(x, y){
+                    this.x = x;
+                    this.y = y;
+                }
+                draw(){
+                    if(this.name == "player"){
+                        if(animations == true){
+                            if(this.source == "idle"){
+                                ctx.drawImage(this.idle, (this.x / 100) * canvas_width, (this.y / 100) * canvas_height, (this.width / 100) * canvas_width, (this.height / 100) * canvas_height)
+                            }else if(this.source == "right_run"){
+                                ctx.drawImage(this.right_run, (this.x / 100) * canvas_width, (this.y / 100) * canvas_height, (this.width / 100) * canvas_width, (this.height / 100) * canvas_height)
+                            }else if(this.source == "left_run"){
+                                ctx.drawImage(this.left_run, (this.x / 100) * canvas_width, (this.y / 100) * canvas_height, (this.width / 100) * canvas_width, (this.height / 100) * canvas_height)
+                            }else if(this.source == "right_jump"){
+                                ctx.drawImage(this.right_jump, (this.x / 100) * canvas_width, (this.y / 100) * canvas_height, (this.width / 100) * canvas_width, (this.height / 100) * canvas_height)
+                            }else if(this.source == "left_jump"){
+                                ctx.drawImage(this.left_jump, (this.x / 100) * canvas_width, (this.y / 100) * canvas_height, (this.width / 100) * canvas_width, (this.height / 100) * canvas_height)
+                            }else{
+                                console.log("INVALID SKIN")
+                            }
+                        }else{
+                            ctx.drawImage(this.idle, (this.x / 100) * canvas_width, (this.y / 100) * canvas_height, (this.width / 100) * canvas_width, (this.height / 100) * canvas_height)
+                        }
+                    }else{
+                        ctx.drawImage(this.image, (this.x / 100) * canvas_width, (this.y / 100) * canvas_height, (this.width / 100) * canvas_width, (this.height / 100) * canvas_height)
+                    }
+                }
+                move(){
+                    this.x += this.dx;
+                    this.y += this.dy;
+                }
+                check_touch(x, y){
+                    if(x > this.x && x < this.x + this.width){
+                        if(y > this.y && y <this.y + this.height){
+                            return true
+                        }else{
+                            return false
+                        }
+                    }else{
+                        return false
+                    }
+                }
+            }
+            
+            function respawn(){
+                player.x = 1;
+                player.y = 50
+                player.dx = 0
+                player.dy = 0
+            }
+            
+            function reset(){
+                player.x = 1;
+                player.y = 50;
+                player.dx = 0
+                player.dy = 0
+                current_screen = 0;
+            }
+            
+            function move_player(){
+                if(player.x < 0){ //to the left of the screen
+                    if(current_screen == 0 || (current_level == 3 && current_screen == 1)){ //first screen
+                        player.dx = player.dx * -1
+                        player.x = 0
+                    }else{
+                        current_screen -= 1
+                        player.x = 100 - player.width
+                    }
+                }else if(player.x + player.width > 100){//to the right of the screen
+                    if(current_screen == levels[current_level - 1].num_screens - 1){ //last screen
+                        if(current_level != 1 && current_level != 4 && current_level != 2){
+                            finish_level()
+                        }else if(current_level == 1 || current_level == 4){
+                            player.dx = player.dx * -1
+                            player.x = 100 - player.width
+                        }
+                    }else{
+                        if(current_level == 3 && current_screen == 0){
+                            player.width = 7
+                            player.height = 14
+                            jump_dy = default_jump_dy
+                            
+                            current_screen += 1
+                            player.x = 5
+                            player.dx = 0
+                            player.dy = 0
+                            player.y = 76
+                        }else if(current_level == 2){
+                            player.dx *= -1
+                            player.x = 100 - player.width
+                        }else{
+                            current_screen += 1
+                            player.x = 0
+                        }
+                    }
+                }
+                if(player.y > 100){
+                    respawn();
+                }
+                
+                touching_ground = false;
+                
+                //console.log("TOUCHING GROUND:", touching_ground)
+                if(moving == "right"){
+                    if(player.dx < max_sideways){
+                        player.dx += move_sideways
+                    }
+                }else if(moving == "left"){
+                    if(player.dx > -max_sideways){
+                        player.dx -= move_sideways
+                    }
+                }else{
+                    if(Math.abs(player.dx) < 1){
+                        player.dx = 0
+                    }else if(player.dx > 0){
+                        player.dx -= 1;
+                    }else if(player.dx < 0){
+                        player.dx += 1;
+                    }
+                }
+                
+                levels[current_level - 1].check_boxes(current_screen)
+                levels[current_level - 1].check_things(current_screen)
+                
+                
+                if(touching_ground == true){
+                    //console.log("moving: ", moving, "spacing:", space)
+                    if(space == true){
+                        player.dy = -jump_dy
+                    }else{
+                        player.dy = 0
+                    }
+                }else{
+                    player.dy += gravity
+                    if(player.dx > 0){
+                        //console.log("Setting to right jump")
+                        player.source = "right_jump"
+                    }else if(player.dx < 0){
+                        player.source = "left_jump"
+                    }else{
+                        player.source = "idle"
+                    }
+                }
+                
+                player.move();
+            }
+            
+            player = new character(2, 60, 7, 14, "player", "https://codehs.com/uploads/7040f5c730bcb10b80988bc03da212a4")
+            teacher = new character(80, 65, 15, 30, "teacher", "https://codehs.com/uploads/6bb476ef87af8f813a93c04fe6deed55")
+            
+            
+            function click_stuff(e){
+                rect = c.getBoundingClientRect();
+                xOff = rect.left;
+                yOff = rect.top;
+                if(dialogue == true){
+                    clicked = true;
+                }else if(playing == false){
+                    if(menu == true){
+                        var curr_x = e.clientX - xOff
+                        var curr_y = e.clientY - yOff
+                        var curr_xp = (curr_x / canvas_width) * 100
+                        var curr_yp = (curr_y / canvas_height) * 100
+                        //console.log(curr_xp, curr_yp)
+                        
+                        var level_request = null
+                        for(var i = 0; i < level_options.length; i++){
+                            if(level_options[i].check_touch(curr_xp, curr_yp) == true){
+                                level_request = level_options[i].num;
+                                break;
+                            }
+                        }
+                        
+                        if(level_request == 4){
+                            if(completed.indexOf(false) == -1 || require_previous == false){
+                                change_level(level_request)
+                            }else{
+                                var needed = []
+                                var needed_string = ""
+                                for(var i = 0; i < completed.length; i++){
+                                    if(completed[i] == false){
+                                        needed.push(completed_labels[i])
+                                    }
+                                }
+                                if(needed.length == 3){
+                                    needed_string = "You need to complete the " + needed[0] + ", " + needed[1] + ", and " + needed[2] + " sections";
+                                }else if(needed.length == 2){
+                                    needed_string = "You need to complete the " + needed[0] + " and " + needed[1] + " sections."
+                                }else if(needed.length == 1){
+                                    needed_string = "You need to complete the " + needed[0] + " section."
+                                }else{
+                                    console.log("Error in generating needed text")
+                                }
+                                
+                                window.alert(needed_string)
+                            }
+                        }else if(level_request != null){
+                            change_level(level_request);
+                        }
+                    }
+                }
+            }
+            
+            function change_level(level_num){
+                console.log("Changing to level: ", level_num)
+                reset_level(level_num)
+                if(level_num == 3){
+                    player.width = 3.5
+                    player.height = 7
+                    jump_dy = 3
+                    
+                    menu = false;
+                    playing = true;
+                    current_level = level_num
+                    current_screen = 0
+                    
+                    player.setXY(0, 70)
+                }else{
+                    menu = false;
+                    playing = true;
+                    current_level = level_num
+                    current_screen = 0
+                }
+            }
+            
+            
+            var dialogues = [["Hello there student. Are you excited to learn about AP Literature?", "I will show you some of the magics of Literary devices and what they do.", 'But most importantly, I will show you what makes a work of literature "great literature"'],[],[],[]]
+            
+            function drawDialogue(message){
+                teacher.draw()
+                
+                var desired_width = canvas_width * 0.25
+                
+                ctx.fillStyle = "black"
+                //ctx.font = "25px  Arial"
+                ctx.font = text_px_string
+                
+                var stuff = message.split(" ")
+                var last_i = 0
+                var curr_i = 0
+                var final_strings = []
+                
+                var test_string = ""
+                var last_test_string = ""
+                for(var i = 0; i < stuff.length; i++){
+                    test_string += stuff[i] + " "
+                    if(ctx.measureText(test_string).width > desired_width){
+                        //console.log(test_string)
+                        final_strings.push(last_test_string)
+                        test_string = stuff[i] + " "
+                        last_test_string = test_string
+                    }else{
+                        last_test_string = test_string
+                    }
+                }
+                final_strings.push(last_test_string)
+                //console.log("Finals: ", final_strings)
+                
+                var start_y = teacher.y - 10
+                for(var i = 0; i < final_strings.length; i++){
+                    ctx.fillText(final_strings[i], ((teacher.x-10)/100)*canvas_width, ((start_y + (3 * i)) / 100) * canvas_height)
+                }
+                //ctx.fillText(message, (70/100)*canvas_width, (60/100)*canvas_height)
+            }
+            
+            var first_level_dialogues = ["Congrats on finishing the Imagery section.", "In this section, you saw many forms of imagery", "For example, the fire underneath probably told you the area was bad, which you were right about.", "Meanwhile, the halo above told you that it was good, which was also correct.", "While these may seem like common sense, think about a book you've read recently and whether it used imagery like fire to signal incoming danger, as many often do", "This is also present in the red obstacle I made for you, where the fact that it was red told you to avoid it because it was danger.", "Lastly, you probably assumed the flower in the beginning was beneficial just from it's looks", "You see, while these examples of imagery are simple, good writers are able to utilize this imagery to envoke emotions, foreshadow events, and more.", "Try to look for examples of imagery in your next read and see if it makes it more interesting.","And as a reward for your troubles, here's a spell to help you jump higher"]
+            
+            var second_level_dialogues = ["Good job working your way through the symbolism section.", "In this level, you were presented with four different common symbols in literature for each section.", "To move on to the next section, you had to determine which symbol had the most positive meaning.", "Starting on the first section, you were presented with a snake, cat, fire, and heart.", "The clear answer here is the heart as it commonly represents love.", "Meanwhile, a snake represents deciet, a black cat represents deviousness, and a fire represents punishment or danger.", "Next, you moved onto the second section, where you were presented with a raven, fox, peacock, and dove", "The correct answer here was the dove as it commonly represents peace.", "Meanwhile, a raven typically represents doom, a fox represents slyness, and a peacock represents excessive pride.", "In the final level, you were presented with a broken mirror, skull, vulture, and rainbow", "The correct answer here was the rainbow as they commonly indicate good fortune", "Meanwhile, skulls represent death, vultures warn of death, and broken mirrors represent bad luck or separation",
+                                          "As you can tell student, we have many associations with these common items, all of which give them a different meaning.", "Writers like to take advantage of this to help set the tone and foreshadow events in novels", "Symbolism helps take abstract toughts and turn them into more material things", "This is the case with death and skulls", "Symbolism is also used to speak out against societal issues without directly naming them.", "In all, symbolism is crucial to understanding the tone, foreshadowing, and meaning of a novel.", "For your hard studying, here's a spell to help you accelerate faster"]
+            
+            var third_level_dialogues = ["Congrats on finishing the Setting section.", "In this section, you got to experience three different settings, each of which had a different feeling", "In the spring setting, you started small and couldn't make the exit jump", "So, you had to collect mushrooms to grow and move foward.", "This is similar to how the spring season almost always represents growth and development for characters (primiarily the protagonist).", "You then moved onto the winter section.", "As you walked through this section, you notice that the trees become more decayed", "This is related to how winter typically represents death or the lack of life", "Finally, you made it to the graveyard section", "While nothing happens in this section, you can tell from the look how the setting of a graveyard is very ominous", "This is related to how a graveyard typically indicates a more morbid tone in the novel", "As you have seen in this level, setting is very important to a novel as it helps set the tone and indicate changes/developments within a character", "Here is a potion for your hard work, it increases your maximum speed"]
+            
+            var fourth_level_dialogues = ["Congratulations student, you have finished my quest", "Now, to reveal what truly defines good literature. It is...", "An impactful and meaningful theme", "You see student, all of these devices serve one purpose, to enhance the theme and meaning of a work.", "An author can be as fancy as they want in their writing, but if their book doesn't leave a meaningful and impactful theme, was it really read?", "Or will it just be forgotten about in a couple hours?", "As you may have noticed, you could have just walked through this level and avoided all the cool things up-top, and maybe you did", "However, you could not go up without your power-ups from before", "This is the same as how literary devices help make the novel (level) more interesting, but they are not necessary for the end result, which is ultimately the theme of the work.", "I hope you learned a bit more about literarture and realize that reading a book is not as one dimensional as people make it out to be", "I challenge you to look for the deeper meaning through the literary devices in the next book you read rather than just taking it at face value.", "And remember: While many great works of literature may utilize all sorts of literary devices, the true definition of good literature comes from the meaning and impact of their theme"]
+            
+            function do_dialogue(){
+                if(first_level_dialogue == true){
+                    if(first_d_counter == 0){
+                        teacher.setXY(20, 25)
+                    }else if(first_d_counter == 5){
+                        current_screen = 1
+                        teacher.setXY(80, 60)
+                        player.setXY(5, 76)
+                    }else if(first_d_counter == 6){
+                        current_screen = 0
+                        teacher.setXY(60, 60)
+                    }
+                    //console.log(first_level_dialogues[first_d_counter])
+                    drawDialogue(first_level_dialogues[first_d_counter])
+                    if(clicked == true){
+                        if(first_d_counter < first_level_dialogues.length - 1){
+                            first_d_counter += 1
+                        }else{
+                            console.log("Stopping first level dialogue")
+                            jump_dy = 9
+                            default_jump_dy = 9;
+                            completed[0] = true;
+                            first_d_counter = 0
+                            first_level_dialogue = false
+                            dialogue = false
+                            menu = true
+                        }
+                        clicked = false;
+                    }
+                }else if(second_level_dialogue == true){
+                    if(second_d_counter == 0){
+                        teacher.setXY(17, 30)
+                    }else if(second_d_counter == 3){
+                        current_screen = 0
+                        teacher.setXY(67, 30)
+                        player.setXY(5, 76)
+                    }else if(second_d_counter == 6){
+                        current_screen = 1
+                    }else if(second_d_counter == 9){
+                        current_screen = 2
+                    }
+                    //console.log(second_level_dialogues[second_d_counter])
+                    drawDialogue(second_level_dialogues[second_d_counter])
+                    if(clicked == true){
+                        if(second_d_counter < second_level_dialogues.length - 1){
+                            second_d_counter += 1
+                        }else{
+                            console.log("Stopping third level dialogue")
+                            move_sideways = 1;
+                            completed[1] = true
+                            second_d_counter = 0;
+                            second_level_dialogue = false
+                            dialogue = false
+                            menu = true
+                        }
+                        clicked = false;
+                    }
+                }else if(third_level_dialogue == true){
+                    if(third_d_counter == 0){
+                        teacher.setXY(30, 20)
+                    }else if(third_d_counter == 2){
+                        current_screen = 0
+                        teacher.setXY(64, 60)
+                        player.setXY(5, 76)
+                    }else if(third_d_counter == 5){
+                        current_screen = 1
+                        teacher.setXY(65, 60)
+                    }
+                    else if(third_d_counter == 8){
+                        current_screen = 2
+                        teacher.setXY(80, 60)
+                    }
+                    //console.log(third_level_dialogues[third_d_counter])
+                    drawDialogue(third_level_dialogues[third_d_counter])
+                    if(clicked == true){
+                        if(third_d_counter < third_level_dialogues.length - 1){
+                            third_d_counter += 1
+                        }else{
+                            console.log("Stopping third level dialogue")
+                            max_sideways = 5;
+                            completed[2] = true;
+                            third_d_counter = 0;
+                            third_level_dialogue = false
+                            dialogue = false
+                            menu = true
+                        }
+                        clicked = false;
+                    }
+                }else if(fourth_level_dialogue == true){
+                    if(fourth_d_counter == 0){
+                        teacher.setXY(40, 60)
+                    }else if(fourth_d_counter == 6){
+                        player.setXY(5, 76)
+                        teacher.setXY(50, 60)
+                        current_screen = 0
+                    }else if(fourth_d_counter == 9){
+                        current_screen = 2
+                    }
+                    //console.log(fourth_level_dialogues[fourth_d_counter])
+                    drawDialogue(fourth_level_dialogues[fourth_d_counter])
+                    if(clicked == true){
+                        if(fourth_d_counter < fourth_level_dialogues.length - 1){
+                            fourth_d_counter += 1
+                        }else{
+                            console.log("Stopping fourth level dialogue")
+                            max_sideways = 5;
+                            fourth_d_counter = 0;
+                            fourth_level_dialogue = false
+                            dialogue = false
+                            menu = true
+                        }
+                        clicked = false;
+                    }
+                }else{
+                    drawDialogue(dialogues[current_dialogue][current_message])
+                    if(clicked == true){
+                        console.log("stuff: ", current_message, dialogues[current_dialogue].length)
+                        if(current_message < dialogues[current_dialogue].length - 1){
+                            current_message += 1
+                        }else{
+                            console.log("Stopping dialogue")
+                            current_dialogue += 1
+                            dialogue = false
+                        }
+                        clicked = false;
+                    }
+                }
+            }
+            
+            function finish_level(){
+                if(current_level == 1){
+                    console.log("Starting level 1 post dialogue")
+                    first_level_dialogue = true;
+                    playing = false;
+                    dialogue = true;
+                }else if(current_level == 2){
+                    console.log("Starting level 2 post dialogue")
+                    second_level_dialogue = true;
+                    playing = false;
+                    dialogue = true;
+                }else if(current_level == 3){
+                    console.log("Starting level 3 post dialogue")
+                    third_level_dialogue = true;
+                    playing = false;
+                    dialogue = true;
+                }else if(current_level == 4){
+                    console.log("Starting level 4 post dialogue")
+                    fourth_level_dialogue = true
+                    playing = false;
+                    dialogue = true;
+                }else{
+                    menu = true;
+                }
+                
+                
+            }
+            
+            function stop_game(){
+                clearInterval(game_timer);
+            }
+            
+            
+            //setTimeout(stop_game, 4000);
+            
+            
+        </script>
+	</body>
+</html>
