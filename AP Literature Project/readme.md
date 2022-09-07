@@ -29,3 +29,4 @@ This is a website that I made for a project in AP Literature where we create a v
 1. This should copy over relatively easily
 ## Special aspects
 1. This program is optimized as much as possible for speed
+    1. I made two programs rendering from the circles and rendering through the image to find the fastest method
