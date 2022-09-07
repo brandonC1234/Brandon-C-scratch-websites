@@ -20,4 +20,4 @@ This is an application I made during online school to make it easier for student
 ## Recreation Instructions
 1. Replace Pubnub IDs with your own
 ## Special aspects
-1. IDK
+1. This was one of my first uses of pubnub and was one of my first programs to solve an actual problem
