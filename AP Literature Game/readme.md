@@ -28,11 +28,11 @@ With the goal of maintaining simplicity in my classes and keeping the various ch
 
 List of classes:
 
- -  Level
-    screen
-        box
-        thing
-character
+ - Level
+   - screen
+     - box
+     - thing
+ - character
 
 ## Special aspects
 1. The game engine for this code is made completely from scratch and can easily have more levels added to it
