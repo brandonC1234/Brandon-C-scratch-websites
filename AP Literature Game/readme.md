@@ -26,13 +26,18 @@ My philosophy with this program was to code a working game engine and then build
 #### Class inception (Nested classes)
 With the goal of maintaining simplicity in my classes and keeping the various checks and render functions seperate I split parts of the program like the levels into 3 different nested classes. While this created more steps in calling functions from the innermost nested class, it's benefit of simplifying the classes was worth it.
 
-List of classes:
+#### Order of classes
 
- - Level
+- Level
    - screen
      - box
      - thing
- - character
+- level_option
+- character
+
+#### Class details
+
+
 
 ## Special aspects
 1. The game engine for this code is made completely from scratch and can easily have more levels added to it
