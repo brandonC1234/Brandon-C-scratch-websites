@@ -19,26 +19,6 @@ This game has four levels and can be played in any order, but I reccomend playin
 ## Recreation Instructions
 1. This should copy over relatively easily, however, there is a chance the images (stored on codehs) will not transfer correctly
 
-## Code Overview
-#### Primary Goal
-My philosophy with this program was to code a working game engine and then build the levels/story rather than plan the game and take the chance of "hard coding" some of it into the engine.
-
-#### Class inception (Nested classes)
-With the goal of maintaining simplicity in my classes and keeping the various checks and render functions seperate I split parts of the program like the levels into 3 different nested classes. While this created more steps in calling functions from the innermost nested class, it's benefit of simplifying the classes was worth it.
-
-#### Order of classes
-
-- Level
-   - screen
-     - box
-     - thing
-- level_option
-- character
-
-#### Class details
-
-
-
 ## Special aspects
 1. The game engine for this code is made completely from scratch and can easily have more levels added to it
 2. I took a large chance in displaying such an abstract idea with a custom computer game while I could have done anything else for this project
