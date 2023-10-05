@@ -1,7 +1,7 @@
 ## Overview
 This a Javascript game built with the codehs.com Javascript graphics API. **This means it's not easily transferable to html programs**
 
-#### codehs link: [https://codehs.com/sandbox/id/helicopter_share_9lCRFF/run](https://codehs.com/sandbox/id/helicopter-share-hFQM6Q)
+#### codehs link: [https://codehs.com/sandbox/id/helicopter-share-hFQM6Q](https://codehs.com/sandbox/id/helicopter-share-hFQM6Q)
 
 ## User Instructrions
 1. Open the codehs link
